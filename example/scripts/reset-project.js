@@ -47,6 +47,56 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+const recoverableMoveErrorCodes = new Set([
+  "EACCES",
+  "EBUSY",
+  "EPERM",
+  "EXDEV",
+]);
+
+const resolveAvailableDestination = (targetPath) => {
+  if (!fs.existsSync(targetPath)) {
+    return targetPath;
+  }
+
+  let index = 1;
+  let candidatePath = `${targetPath}-${index}`;
+  while (fs.existsSync(candidatePath)) {
+    index += 1;
+    candidatePath = `${targetPath}-${index}`;
+  }
+
+  return candidatePath;
+};
+
+const removeDirectoryWithRetries = async (targetPath) => {
+  await fs.promises.rm(targetPath, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 100,
+  });
+};
+
+const moveDirectoryWithFallback = async (sourcePath, destinationPath) => {
+  try {
+    await fs.promises.rename(sourcePath, destinationPath);
+    return false;
+  } catch (error) {
+    if (!recoverableMoveErrorCodes.has(error.code)) {
+      throw error;
+    }
+
+    await fs.promises.cp(sourcePath, destinationPath, {
+      recursive: true,
+      errorOnExist: true,
+      force: false,
+    });
+    await removeDirectoryWithRetries(sourcePath);
+    return true;
+  }
+};
+
 const moveDirectories = async (userInput) => {
   try {
     if (userInput === "y") {
@@ -60,11 +110,26 @@ const moveDirectories = async (userInput) => {
       const oldDirPath = path.join(root, dir);
       if (fs.existsSync(oldDirPath)) {
         if (userInput === "y") {
-          const newDirPath = path.join(root, exampleDir, dir);
-          await fs.promises.rename(oldDirPath, newDirPath);
-          console.log(`➡️ /${dir} moved to /${exampleDir}/${dir}.`);
+          const preferredDirPath = path.join(root, exampleDir, dir);
+          const newDirPath = resolveAvailableDestination(preferredDirPath);
+          const destinationName = path.basename(newDirPath);
+          if (destinationName !== dir) {
+            console.log(
+              `ℹ️ /${exampleDir}/${dir} already exists, moving to /${exampleDir}/${destinationName} instead.`
+            );
+          }
+          const usedCopyFallback = await moveDirectoryWithFallback(
+            oldDirPath,
+            newDirPath
+          );
+          const fallbackSuffix = usedCopyFallback
+            ? " (copied with fallback due rename restrictions)."
+            : ".";
+          console.log(
+            `➡️ /${dir} moved to /${exampleDir}/${destinationName}${fallbackSuffix}`
+          );
         } else {
-          await fs.promises.rm(oldDirPath, { recursive: true, force: true });
+          await removeDirectoryWithRetries(oldDirPath);
           console.log(`❌ /${dir} deleted.`);
         }
       } else {
