@@ -42,7 +42,7 @@ export default function DeckScreen() {
   };
 
   const handleAddDeck = () => {
-    console.log("plus gedrueckt");
+    router.push(`/decks/create`);
   };
 
 
