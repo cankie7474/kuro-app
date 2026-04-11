@@ -1,7 +1,18 @@
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 import cardService from "../../../services/cardService";
+import deckService from "../../../services/deckService";
 
 type Card = {
   $id: string;
@@ -10,39 +21,316 @@ type Card = {
   deckId: string;
 };
 
+type Deck = {
+  $id: string;
+  title: string;
+  description?: string;
+  color?: string;
+};
+
 export default function DeckDetailScreen() {
-  // const { deckId } = useLocalSearchParams<{deckId: string}>(); // erwarte einen parameter namens deckId: string
   const params = useLocalSearchParams();
   const deckId = params.deckId;
+
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [cardsExpanded, setCardsExpanded] = useState(true);
 
   useEffect(() => {
-    fetchCards();
+    fetchDeckData();
   }, [deckId]);
 
-  const fetchCards = async () => {
+  const fetchDeckData = async () => {
     if (!deckId) return;
 
-    const response = await cardService.getCardsByDeck(String(deckId));
+    setLoading(true);
 
-    if (response.error) {
-      console.log(response.error);
-      return;
+    const deckResponse = await deckService.getDeckById(String(deckId));
+    const cardsResponse = await cardService.getCardsByDeck(String(deckId));
+
+    if (deckResponse.error) {
+      console.log(deckResponse.error);
+      setDeck(null);
+    } else if (deckResponse.data) {
+      const deckData = deckResponse.data as unknown as Deck;
+      setDeck(deckData);
+    } else {
+      setDeck(null);
     }
 
-    setCards(response.data as Card[]);
+    if (cardsResponse.error) {
+      console.log(cardsResponse.error);
+      setCards([]);
+    } else {
+      setCards(cardsResponse.data as Card[]);
+    }
+
+    setLoading(false);
   };
 
-  return (
-    <View style={{padding: 100, position: "absolute"}}>
-      <Text>Deck ID: {deckId}</Text>
+  const handleBack = () => {
+    router.back();
+  };
 
-      {cards.map((card) => (
-        <View key={card.$id}>
-          <Text>{card.front}</Text>
-          <Text>{card.back}</Text>
-        </View>
-      ))}
-    </View>
+  const handleEdit = () => {
+    console.log("edit deck");
+  };
+
+  const handleDelete = () => {
+    console.log("delete deck");
+  };
+
+  const handleBeginStudy = () => {
+    if (!deckId) {
+        return console.error();
+    } else {
+        router.push(`/decks/study/${deckId}`);
+    }
+  };
+
+  const handleToggleCards = () => {
+    setCardsExpanded((prev) => !prev);
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View style={styles.centerState}>
+            <Text style={styles.stateText}>Loading deck...</Text>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.topBar}>
+            <Pressable style={styles.iconButton} onPress={handleBack}>
+              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+            </Pressable>
+
+            <View style={styles.topBarActions}>
+              <Pressable style={styles.iconButton} onPress={handleEdit}>
+                <MaterialIcons name="edit" size={20} color="#f5f7fb" />
+              </Pressable>
+
+              <Pressable style={styles.iconButton} onPress={handleDelete}>
+                <MaterialIcons
+                  name="delete-outline"
+                  size={22}
+                  color="#f5f7fb"
+                />
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.headerCard}>
+            <View
+              style={[
+                styles.deckAccent,
+                { backgroundColor: deck?.color || "#8aa0ff" },
+              ]}
+            />
+            <Text style={styles.title}>{deck?.title || "Deck"}</Text>
+            <Text style={styles.description}>
+              {deck?.description || "No description yet."}
+            </Text>
+          </View>
+
+          <Pressable style={styles.sectionHeader} onPress={handleToggleCards}>
+            <View>
+              <Text style={styles.sectionTitle}>Cards</Text>
+              <Text style={styles.sectionMeta}>{cards.length} total</Text>
+            </View>
+
+            <MaterialIcons
+              name={cardsExpanded ? "expand-less" : "expand-more"}
+              size={24}
+              color="#8f9bb2"
+            />
+          </Pressable>
+
+          {cardsExpanded &&
+            (cards.length === 0 ? (
+              <View style={styles.emptyCard}>
+                <Text style={styles.emptyTitle}>No cards yet</Text>
+                <Text style={styles.emptyText}>
+                  Add your first cards to start studying this deck.
+                </Text>
+              </View>
+            ) : (
+              cards.map((card, index) => (
+                <View key={card.$id} style={styles.card}>
+                  <Text style={styles.cardIndex}>Card {index + 1}</Text>
+                  <Text style={styles.cardFront}>{card.front}</Text>
+                  <Text style={styles.cardBack}>{card.back}</Text>
+                </View>
+              ))
+            ))}
+
+          <Pressable style={styles.studyButton} onPress={handleBeginStudy}>
+            <Text style={styles.studyButtonText}>Begin Study</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#090b10",
+  },
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 32,
+  },
+  centerState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  stateText: {
+    color: "#a7afbd",
+    fontSize: 16,
+  },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 18,
+  },
+  topBarActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#121722",
+    borderWidth: 1,
+    borderColor: "#232a36",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCard: {
+    backgroundColor: "#121722",
+    borderRadius: 28,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    marginBottom: 20,
+  },
+  deckAccent: {
+    width: 16,
+    height: 16,
+    borderRadius: 999,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#f5f7fb",
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: "#a7afbd",
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+    paddingHorizontal: 2,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#f5f7fb",
+  },
+  sectionMeta: {
+    fontSize: 14,
+    color: "#8f9bb2",
+  },
+  emptyCard: {
+    backgroundColor: "#121722",
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    marginBottom: 18,
+  },
+  emptyTitle: {
+    color: "#f5f7fb",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  emptyText: {
+    color: "#a7afbd",
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  card: {
+    backgroundColor: "#121722",
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    marginBottom: 14,
+  },
+  cardIndex: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#8f9bb2",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    marginBottom: 10,
+  },
+  cardFront: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: "#f5f7fb",
+    marginBottom: 12,
+  },
+  cardBack: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: "#a7afbd",
+  },
+  studyButton: {
+    backgroundColor: "#f4f7fb",
+    borderRadius: 999,
+    paddingVertical: 18,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  studyButtonText: {
+    color: "#0c0f14",
+    fontSize: 17,
+    fontWeight: "600",
+  },
+});
