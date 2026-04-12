@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import deckService from "../../../services/deckService";
+import laravelDeckService from "../../../services/laravelDeckService"
 import {router} from "expo-router";
 
 export default function DeckScreen() {
@@ -20,14 +20,15 @@ export default function DeckScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDecks();
+    testLaravel();
   }, []);
 
-  const fetchDecks = async () => {
+  const testLaravel = async () => {
     setLoading(true);
-    const response = await deckService.getDecks();
-
+    const response = await laravelDeckService.getDecks();
+    
     if (response.error) {
+      console.error("Failed to load decks:", response.error);
       setError(response.error);
       Alert.alert("Decks konnten nicht geladen werden.", response.error);
     } else {
@@ -38,7 +39,7 @@ export default function DeckScreen() {
   };
 
   const handleDeckPress = (deck: any) => {
-    router.push(`/decks/${deck.$id}`);
+    router.push(`/decks/${deck.id}`);
   };
 
   const handleAddDeck = () => {
@@ -80,7 +81,7 @@ export default function DeckScreen() {
       >
         <FlatList
           data={decks}
-          keyExtractor={(item) => item.$id}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}

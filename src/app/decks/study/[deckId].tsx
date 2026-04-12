@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -16,13 +17,13 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import cardService from "../../../../services/cardService";
+import laravelCardService from "../../../../services/laravelCardService";
 
 type Card = {
-  $id: string;
+  id: number;
   front: string;
   back: string;
-  deckId: string;
+  deck_id: number;
 };
 
 export default function StudyScreen() {
@@ -47,10 +48,11 @@ export default function StudyScreen() {
 
     setLoading(true);
 
-    const response = await cardService.getCardsByDeck(String(deckId));
+    const response = await laravelCardService.getCardsByDeck(String(deckId));
 
     if (response.error) {
-      console.log(response.error);
+      console.error("Failed to load study cards:", response.error);
+      Alert.alert("Lernkarten konnten nicht geladen werden.", response.error);
       setCards([]);
     } else {
       setCards(response.data as Card[]);

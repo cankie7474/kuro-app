@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,18 +12,18 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import cardService from "../../../services/cardService";
-import deckService from "../../../services/deckService";
+import laravelCardService from "../../../services/laravelCardService";
+import laravelDeckService from "../../../services/laravelDeckService";
 
 type Card = {
-  $id: string;
+  id: number;
   front: string;
   back: string;
-  deckId: string;
+  deck_id: number;
 };
 
 type Deck = {
-  $id: string;
+  id: number;
   title: string;
   description?: string;
   color?: string;
@@ -46,21 +47,22 @@ export default function DeckDetailScreen() {
 
     setLoading(true);
 
-    const deckResponse = await deckService.getDeckById(String(deckId));
-    const cardsResponse = await cardService.getCardsByDeck(String(deckId));
+    const deckResponse = await laravelDeckService.getDeckById(String(deckId));
+    const cardsResponse = await laravelCardService.getCardsByDeck(String(deckId));
 
     if (deckResponse.error) {
-      console.log(deckResponse.error);
+      console.error("Failed to load deck:", deckResponse.error);
+      Alert.alert("Deck konnte nicht geladen werden.", deckResponse.error);
       setDeck(null);
     } else if (deckResponse.data) {
-      const deckData = deckResponse.data as unknown as Deck;
-      setDeck(deckData);
+      setDeck(deckResponse.data as Deck);
     } else {
       setDeck(null);
     }
 
     if (cardsResponse.error) {
-      console.log(cardsResponse.error);
+      console.error("Failed to load cards:", cardsResponse.error);
+      Alert.alert("Karten konnten nicht geladen werden.", cardsResponse.error);
       setCards([]);
     } else {
       setCards(cardsResponse.data as Card[]);
@@ -174,7 +176,7 @@ export default function DeckDetailScreen() {
               </View>
             ) : (
               cards.map((card, index) => (
-                <View key={card.$id} style={styles.card}>
+                <View key={card.id} style={styles.card}>
                   <Text style={styles.cardIndex}>Card {index + 1}</Text>
                   <Text style={styles.cardFront}>{card.front}</Text>
                   <Text style={styles.cardBack}>{card.back}</Text>
