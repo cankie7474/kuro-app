@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   Alert,
@@ -9,10 +9,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import laravelDeckService from "../../../services/laravelDeckService"
-import {router} from "expo-router";
+import {router, useFocusEffect} from "expo-router";
 
 export default function DeckScreen() {
   const [decks, setDecks] = useState<any[]>([]);
@@ -20,10 +21,16 @@ export default function DeckScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    testLaravel();
+    fetchDecks();
   }, []);
 
-  const testLaravel = async () => {
+  useFocusEffect(
+    useCallback(() => {
+      fetchDecks();
+    }, [])
+  );
+
+  const fetchDecks = async () => {
     setLoading(true);
     const response = await laravelDeckService.getDecks();
     
@@ -54,7 +61,10 @@ export default function DeckScreen() {
           style={styles.container}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+          <View style={styles.centerLoading}>
           <Text style={styles.stateText}>Loading decks...</Text>
+          <ActivityIndicator size="large" style={styles.activityIndicator}></ActivityIndicator>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     );
@@ -260,4 +270,12 @@ const styles = StyleSheet.create({
     color: "#a7afbd",
     textAlign: "center",
   },
+  activityIndicator: {
+    padding: 20,
+  },
+  centerLoading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });

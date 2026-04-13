@@ -1,12 +1,39 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useState } from "react";
+import laravelDeckService from "../../../services/laravelDeckService";
 
 export default function CreateDeckScreen() {
 
-  const handleCreateDeck = () => {
-    return console.log("Create Deck pressed");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [color, setColor] = useState("");
+  
+  const handleCreateDeck = async () => {
+    if (!title.trim()) {
+      Alert.alert("Titel fehlt", "Bitte gib einen Titel ein.");
+      return;
+    }
+
+    const newDeck = {
+      title: title.trim(),
+      description: description.trim() || null,
+      color: color.trim() || null,
+    };
+
+    const response = await laravelDeckService.createDeck(newDeck);
+
+    if (response.error) {
+      console.error("Failed to create deck:", response.error);
+      Alert.alert("Failed to create deck:", response.error);
+      return;
+    }
+
+    router.back();
+
+
   }
 
   return (
@@ -37,6 +64,8 @@ export default function CreateDeckScreen() {
               placeholder="Deutsch"
               placeholderTextColor="#8f9bb2"
               style={styles.input}
+              value={title}
+              onChangeText={setTitle}
             />
           </View>
 
@@ -48,6 +77,8 @@ export default function CreateDeckScreen() {
               style={[styles.input, styles.textArea]}
               multiline
               textAlignVertical="top"
+              value={description}
+              onChangeText={setDescription}
             />
           </View>
 
@@ -57,6 +88,8 @@ export default function CreateDeckScreen() {
               placeholder="#3B82F6"
               placeholderTextColor="#8f9bb2"
               style={styles.input}
+              value={color}
+              onChangeText={setColor}
             />
           </View>
         </View>
