@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -37,6 +38,9 @@ export default function DeckDetailScreen() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [cardsExpanded, setCardsExpanded] = useState(true);
+  const [showCreateCard, setShowCreateCard] = useState(false);
+  const [front, setFront] = useState("");
+  const [back, setBack] = useState("");
 
   useEffect(() => {
     fetchDeckData();
@@ -48,7 +52,9 @@ export default function DeckDetailScreen() {
     setLoading(true);
 
     const deckResponse = await laravelDeckService.getDeckById(String(deckId));
-    const cardsResponse = await laravelCardService.getCardsByDeck(String(deckId));
+    const cardsResponse = await laravelCardService.getCardsByDeck(
+      String(deckId)
+    );
 
     if (deckResponse.error) {
       console.error("Failed to load deck:", deckResponse.error);
@@ -85,14 +91,42 @@ export default function DeckDetailScreen() {
 
   const handleBeginStudy = () => {
     if (!deckId) {
-        return console.error();
+      return console.error();
     } else {
-        router.push(`/decks/study/${deckId}`);
+      router.push(`/decks/study/${deckId}`);
     }
   };
 
   const handleToggleCards = () => {
     setCardsExpanded((prev) => !prev);
+  };
+
+  const handleToggleCreateCard = () => {
+    setShowCreateCard((prev) => !prev);
+  };
+
+  const handleCreateCard = async () => {
+    if (!deckId) return;
+
+    if (!front.trim() || !back.trim()) {
+      Alert.alert("Missing fields", "Front and back are required.");
+      return;
+    }
+
+    const data = {
+      front: front.trim(),
+      back: back.trim(),
+    };
+
+    const response = await laravelCardService.createCard(data, deckId);
+
+    if (response.error) {
+      console.error("Failed to create card", response.error);
+    } else {
+      setFront("");
+      setBack("");
+      await fetchDeckData();
+    }
   };
 
   if (loading) {
@@ -153,18 +187,63 @@ export default function DeckDetailScreen() {
             </Text>
           </View>
 
-          <Pressable style={styles.sectionHeader} onPress={handleToggleCards}>
-            <View>
-              <Text style={styles.sectionTitle}>Cards</Text>
-              <Text style={styles.sectionMeta}>{cards.length} total</Text>
-            </View>
+          <View style={styles.sectionHeader}>
+            <Pressable onPress={handleToggleCards} style={styles.sectionCopy}>
+              <View>
+                <Text style={styles.sectionTitle}>Cards</Text>
+                <Text style={styles.sectionMeta}>{cards.length} total</Text>
+              </View>
+            </Pressable>
 
-            <MaterialIcons
-              name={cardsExpanded ? "expand-less" : "expand-more"}
-              size={24}
-              color="#8f9bb2"
-            />
-          </Pressable>
+            <View style={styles.sectionActions}>
+              <Pressable
+                style={styles.addCardButton}
+                onPress={handleToggleCreateCard}
+              >
+                <MaterialIcons
+                  name={showCreateCard ? "close" : "add"}
+                  size={20}
+                  color="#f5f7fb"
+                />
+              </Pressable>
+
+              <Pressable onPress={handleToggleCards}>
+                <MaterialIcons
+                  name={cardsExpanded ? "expand-less" : "expand-more"}
+                  size={24}
+                  color="#8f9bb2"
+                />
+              </Pressable>
+            </View>
+          </View>
+
+          {showCreateCard && (
+            <View style={styles.createCardBox}>
+              <Text style={styles.createCardTitle}>Add a new Card</Text>
+
+              <TextInput
+                placeholder="Front"
+                placeholderTextColor="#8f9bb2"
+                style={styles.input}
+                value={front}
+                onChangeText={setFront}
+              />
+
+              <TextInput
+                placeholder="Back"
+                placeholderTextColor="#8f9bb2"
+                style={[styles.input, styles.textArea]}
+                multiline
+                textAlignVertical="top"
+                value={back}
+                onChangeText={setBack}
+              />
+
+              <Pressable style={styles.createButton} onPress={handleCreateCard}>
+                <Text style={styles.createButtonText}>Create Card</Text>
+              </Pressable>
+            </View>
+          )}
 
           {cardsExpanded &&
             (cards.length === 0 ? (
@@ -268,6 +347,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     paddingHorizontal: 2,
   },
+  sectionCopy: {
+    flex: 1,
+  },
+  sectionActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
@@ -276,6 +363,56 @@ const styles = StyleSheet.create({
   sectionMeta: {
     fontSize: 14,
     color: "#8f9bb2",
+  },
+  addCardButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "#121722",
+    borderWidth: 1,
+    borderColor: "#232a36",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  createCardBox: {
+    backgroundColor: "#121722",
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    marginBottom: 18,
+  },
+  createCardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#f5f7fb",
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: "#0f141d",
+    borderWidth: 1,
+    borderColor: "#232a36",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: "#f5f7fb",
+    marginBottom: 12,
+  },
+  textArea: {
+    minHeight: 110,
+  },
+  createButton: {
+    backgroundColor: "#f5f7fb",
+    borderRadius: 999,
+    paddingVertical: 15,
+    alignItems: "center",
+    marginTop: 4,
+  },
+  createButtonText: {
+    color: "#0c111b",
+    fontSize: 15,
+    fontWeight: "700",
   },
   emptyCard: {
     backgroundColor: "#121722",
