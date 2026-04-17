@@ -12,8 +12,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import laravelDeckService from "../../../services/laravelDeckService"
-import {router, useFocusEffect} from "expo-router";
+import laravelDeckService from "../../../services/laravelDeckService";
+import { router, useFocusEffect } from "expo-router";
 
 export default function DeckScreen() {
   const [decks, setDecks] = useState<any[]>([]);
@@ -33,7 +33,7 @@ export default function DeckScreen() {
   const fetchDecks = async () => {
     setLoading(true);
     const response = await laravelDeckService.getDecks();
-    
+
     if (response.error) {
       console.error("Failed to load decks:", response.error);
       setError(response.error);
@@ -50,9 +50,8 @@ export default function DeckScreen() {
   };
 
   const handleAddDeck = () => {
-    router.push(`/decks/create`);
+    router.push(`/decks/new`);
   };
-
 
   if (loading) {
     return (
@@ -62,8 +61,11 @@ export default function DeckScreen() {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <View style={styles.centerLoading}>
-          <Text style={styles.stateText}>Loading decks...</Text>
-          <ActivityIndicator size="large" style={styles.activityIndicator}></ActivityIndicator>
+            <Text style={styles.stateText}>Loading decks...</Text>
+            <ActivityIndicator
+              size="large"
+              style={styles.activityIndicator}
+            ></ActivityIndicator>
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -141,7 +143,9 @@ export default function DeckScreen() {
               </View>
             </View>
           }
-          ListEmptyComponent={<Text style={styles.stateText}>No decks found.</Text>}
+          ListEmptyComponent={
+            <Text style={styles.stateText}>No decks found.</Text>
+          }
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         />
@@ -277,5 +281,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  }
+  },
 });

@@ -69,10 +69,7 @@ export default function StudyScreen() {
     setShowAnswer(true);
   };
 
-  const finishCardTransition = (
-    nextIndex: number,
-    enterFrom: number
-  ) => {
+  const finishCardTransition = (nextIndex: number, enterFrom: number) => {
     setCurrentIndex(nextIndex);
     setShowAnswer(false);
     translateX.value = enterFrom;
@@ -175,7 +172,9 @@ export default function StudyScreen() {
             <View style={styles.answerBlock}>
               <Text style={styles.cardLabel}>Answer</Text>
               <Text style={styles.cardBack}>
-                {showAnswer ? currentCard.back : "Tap below to reveal the answer."}
+                {showAnswer
+                  ? currentCard.back
+                  : "Tap below to reveal the answer."}
               </Text>
             </View>
           </Animated.View>

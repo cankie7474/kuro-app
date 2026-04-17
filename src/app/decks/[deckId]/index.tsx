@@ -13,8 +13,8 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import laravelCardService from "../../../services/laravelCardService";
-import laravelDeckService from "../../../services/laravelDeckService";
+import laravelCardService from "../../../../services/laravelCardService";
+import laravelDeckService from "../../../../services/laravelDeckService";
 
 type Card = {
   id: number;
@@ -93,7 +93,7 @@ export default function DeckDetailScreen() {
     if (!deckId) {
       return console.error();
     } else {
-      router.push(`/decks/study/${deckId}`);
+      router.push(`/decks/${deckId}/study`);
     }
   };
 

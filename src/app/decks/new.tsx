@@ -1,16 +1,22 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import laravelDeckService from "../../../services/laravelDeckService";
 
 export default function CreateDeckScreen() {
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState("");
-  
+
   const handleCreateDeck = async () => {
     if (!title.trim()) {
       Alert.alert("Titel fehlt", "Bitte gib einen Titel ein.");
@@ -32,9 +38,7 @@ export default function CreateDeckScreen() {
     }
 
     router.back();
-
-
-  }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -94,7 +98,11 @@ export default function CreateDeckScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={() => handleCreateDeck()}>
+        <TouchableOpacity
+          style={styles.button}
+          activeOpacity={0.85}
+          onPress={() => handleCreateDeck()}
+        >
           <Text style={styles.buttonText}>Create Deck</Text>
         </TouchableOpacity>
       </View>
