@@ -43,6 +43,10 @@ export default function DeckDetailScreen() {
   const [openCardMenuId, setOpenCardMenuId] = useState<number | null>(null);
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
+  const [editingCardId, setEditingCardId] = useState<number | null>(null);
+  const [editFront, setEditFront] = useState("");
+  const [editBack, setEditBack] = useState("");
+  const [savingCardEdit, setSavingCardEdit] = useState(false);
 
   useEffect(() => {
     fetchDeckData();
@@ -90,7 +94,7 @@ export default function DeckDetailScreen() {
     router.back();
   };
 
-  const handleEdit = () => {
+  const handleEditDeck = () => {
     setShowMenu(false);
     router.push(`/decks/${deckId}/edit`);
   };
@@ -134,12 +138,38 @@ export default function DeckDetailScreen() {
 
   const handleEditCard = (cardId: number) => {
     setOpenCardMenuId(null);
-    console.log("edit card", cardId);
+
+    const selectedCard = cards.find((card) => card.id === cardId);
+
+    if (!selectedCard) {
+      Alert.alert("Error", "Card not found.");
+      return;
+    }
+
+    setEditingCardId(cardId);
+    setEditFront(selectedCard.front);
+    setEditBack(selectedCard.back);
   };
 
-  const handleDeleteCard = (cardId: number) => {
+  const handleDeleteCard = async (cardId: number) => {
     setOpenCardMenuId(null);
-    console.log("delete card", cardId);
+    if (!deckId || !cardId) {
+      Alert.alert("Error", "Missing deck or card ID.");
+      return;
+    }
+
+    const response = await laravelCardService.deleteCard(cardId, deckId);
+
+    if (response.error) {
+      Alert.alert("Failed to delete card", response.error);
+    } else {
+      if (editingCardId === cardId) {
+        handleCancelEditCard();
+      }
+
+      await fetchDeckData();
+      Alert.alert("Card deleted.");
+    }
   };
 
   const handleBeginStudy = () => {
@@ -194,6 +224,46 @@ export default function DeckDetailScreen() {
     }
   };
 
+  const handleCancelEditCard = () => {
+    setEditingCardId(null);
+    setEditFront("");
+    setEditBack("");
+    setSavingCardEdit(false);
+  };
+
+  const handleSaveEditCard = async () => {
+    if (!deckId || editingCardId === null) {
+      Alert.alert("Error", "Missing deck or card ID.");
+      return;
+    }
+
+    if (!editFront.trim() || !editBack.trim()) {
+      Alert.alert("Missing fields", "Front and back are required.");
+      return;
+    }
+
+    setSavingCardEdit(true);
+
+    const response = await laravelCardService.updateCard(
+      {
+        front: editFront.trim(),
+        back: editBack.trim(),
+      },
+      deckId,
+      editingCardId
+    );
+
+    if (response.error) {
+      Alert.alert("Failed to update card", response.error);
+      setSavingCardEdit(false);
+      return;
+    }
+
+    await fetchDeckData();
+    handleCancelEditCard();
+    Alert.alert("Card updated.");
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -237,13 +307,13 @@ export default function DeckDetailScreen() {
                   />
 
                   <View style={styles.menuCard}>
-                    <Pressable style={styles.menuItem} onPress={handleEdit}>
+                    <Pressable style={styles.menuItem} onPress={handleEditDeck}>
                       <MaterialIcons name="edit" size={18} color="#f5f7fb" />
                       <Text style={styles.menuText}>Edit deck</Text>
                     </Pressable>
 
                     <Pressable style={styles.menuItem} onPress={confirmDelete}>
-                    <MaterialIcons
+                      <MaterialIcons
                         name="delete-outline"
                         size={18}
                         color="#ff8f8f"
@@ -382,8 +452,57 @@ export default function DeckDetailScreen() {
                     </View>
                   </View>
 
-                  <Text style={styles.cardFront}>{card.front}</Text>
-                  <Text style={styles.cardBack}>{card.back}</Text>
+                  {editingCardId === card.id ? (
+                    <View style={styles.editCardBox}>
+                      <TextInput
+                        placeholder="Front"
+                        placeholderTextColor="#8f9bb2"
+                        style={styles.input}
+                        value={editFront}
+                        onChangeText={setEditFront}
+                      />
+
+                      <TextInput
+                        placeholder="Back"
+                        placeholderTextColor="#8f9bb2"
+                        style={[styles.input, styles.textArea]}
+                        multiline
+                        textAlignVertical="top"
+                        value={editBack}
+                        onChangeText={setEditBack}
+                      />
+
+                      <View style={styles.editCardActions}>
+                        <Pressable
+                          style={styles.editCancelButton}
+                          onPress={handleCancelEditCard}
+                          disabled={savingCardEdit}
+                        >
+                          <Text style={styles.editCancelButtonText}>
+                            Cancel
+                          </Text>
+                        </Pressable>
+
+                        <Pressable
+                          style={[
+                            styles.editSaveButton,
+                            savingCardEdit && styles.saveButtonDisabled,
+                          ]}
+                          onPress={handleSaveEditCard}
+                          disabled={savingCardEdit}
+                        >
+                          <Text style={styles.editSaveButtonText}>
+                            {savingCardEdit ? "Saving..." : "Save Card"}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ) : (
+                    <>
+                      <Text style={styles.cardFront}>{card.front}</Text>
+                      <Text style={styles.cardBack}>{card.back}</Text>
+                    </>
+                  )}
                 </View>
               ))
             ))}
@@ -640,6 +759,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     color: "#a7afbd",
+  },
+  editCardBox: {
+    marginTop: 4,
+  },
+  editCardActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  editCancelButton: {
+    flex: 1,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    paddingVertical: 14,
+    alignItems: "center",
+    backgroundColor: "#0f141d",
+  },
+  editCancelButtonText: {
+    color: "#dfe5f2",
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  editSaveButton: {
+    flex: 1,
+    borderRadius: 999,
+    paddingVertical: 14,
+    alignItems: "center",
+    backgroundColor: "#f5f7fb",
+  },
+  editSaveButtonText: {
+    color: "#0c111b",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
   },
   studyButton: {
     backgroundColor: "#f4f7fb",
