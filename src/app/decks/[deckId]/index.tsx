@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import {
   Alert,
@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import laravelCardService from "../../../../services/laravelCardService";
 import laravelDeckService from "../../../../services/laravelDeckService";
@@ -39,12 +39,20 @@ export default function DeckDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [cardsExpanded, setCardsExpanded] = useState(true);
   const [showCreateCard, setShowCreateCard] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [openCardMenuId, setOpenCardMenuId] = useState<number | null>(null);
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
 
   useEffect(() => {
     fetchDeckData();
   }, [deckId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDeckData();
+    }, [deckId])
+  );
 
   const fetchDeckData = async () => {
     if (!deckId) return;
@@ -58,7 +66,7 @@ export default function DeckDetailScreen() {
 
     if (deckResponse.error) {
       console.error("Failed to load deck:", deckResponse.error);
-      Alert.alert("Deck konnte nicht geladen werden.", deckResponse.error);
+      Alert.alert("Deck could not be loaded.", deckResponse.error);
       setDeck(null);
     } else if (deckResponse.data) {
       setDeck(deckResponse.data as Deck);
@@ -68,7 +76,7 @@ export default function DeckDetailScreen() {
 
     if (cardsResponse.error) {
       console.error("Failed to load cards:", cardsResponse.error);
-      Alert.alert("Karten konnten nicht geladen werden.", cardsResponse.error);
+      Alert.alert("Cards could not be loaded.", cardsResponse.error);
       setCards([]);
     } else {
       setCards(cardsResponse.data as Card[]);
@@ -78,15 +86,60 @@ export default function DeckDetailScreen() {
   };
 
   const handleBack = () => {
+    setShowMenu(false);
     router.back();
   };
 
   const handleEdit = () => {
-    console.log("edit deck");
+    setShowMenu(false);
+    router.push(`/decks/${deckId}/edit`);
   };
 
-  const handleDelete = () => {
-    console.log("delete deck");
+  const confirmDelete = () => {
+    setShowMenu(false);
+
+    Alert.alert("Delete deck?", "This action cannot be undone.", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: handleDelete,
+      },
+    ]);
+  };
+
+  const handleDelete = async () => {
+    if (!deckId) {
+      Alert.alert("Error", "No deck ID found.");
+      return;
+    }
+
+    const response = await laravelDeckService.deleteDeck(String(deckId));
+
+    if (response.error) {
+      Alert.alert("Delete failed", response.error);
+      return;
+    }
+
+    Alert.alert("Deleted", "The deck was removed.", [
+      {
+        text: "OK",
+        onPress: () => router.back(),
+      },
+    ]);
+  };
+
+  const handleEditCard = (cardId: number) => {
+    setOpenCardMenuId(null);
+    console.log("edit card", cardId);
+  };
+
+  const handleDeleteCard = (cardId: number) => {
+    setOpenCardMenuId(null);
+    console.log("delete card", cardId);
   };
 
   const handleBeginStudy = () => {
@@ -102,7 +155,19 @@ export default function DeckDetailScreen() {
   };
 
   const handleToggleCreateCard = () => {
+    setShowMenu(false);
+    setOpenCardMenuId(null);
     setShowCreateCard((prev) => !prev);
+  };
+
+  const handleToggleMenu = () => {
+    setOpenCardMenuId(null);
+    setShowMenu((prev) => !prev);
+  };
+
+  const handleToggleCardMenu = (cardId: number) => {
+    setShowMenu(false);
+    setOpenCardMenuId((prev) => (prev === cardId ? null : cardId));
   };
 
   const handleCreateCard = async () => {
@@ -159,18 +224,35 @@ export default function DeckDetailScreen() {
               <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
             </Pressable>
 
-            <View style={styles.topBarActions}>
-              <Pressable style={styles.iconButton} onPress={handleEdit}>
-                <MaterialIcons name="edit" size={20} color="#f5f7fb" />
+            <View style={styles.menuWrapper}>
+              <Pressable style={styles.iconButton} onPress={handleToggleMenu}>
+                <MaterialIcons name="more-vert" size={22} color="#f5f7fb" />
               </Pressable>
 
-              <Pressable style={styles.iconButton} onPress={handleDelete}>
-                <MaterialIcons
-                  name="delete-outline"
-                  size={22}
-                  color="#f5f7fb"
-                />
-              </Pressable>
+              {showMenu && (
+                <>
+                  <Pressable
+                    style={styles.menuBackdrop}
+                    onPress={() => setShowMenu(false)}
+                  />
+
+                  <View style={styles.menuCard}>
+                    <Pressable style={styles.menuItem} onPress={handleEdit}>
+                      <MaterialIcons name="edit" size={18} color="#f5f7fb" />
+                      <Text style={styles.menuText}>Edit deck</Text>
+                    </Pressable>
+
+                    <Pressable style={styles.menuItem} onPress={confirmDelete}>
+                    <MaterialIcons
+                        name="delete-outline"
+                        size={18}
+                        color="#ff8f8f"
+                      />
+                      <Text style={styles.menuTextDanger}>Delete deck</Text>
+                    </Pressable>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
@@ -256,7 +338,50 @@ export default function DeckDetailScreen() {
             ) : (
               cards.map((card, index) => (
                 <View key={card.id} style={styles.card}>
-                  <Text style={styles.cardIndex}>Card {index + 1}</Text>
+                  <View style={styles.cardHeader}>
+                    <Text style={styles.cardIndex}>Card {index + 1}</Text>
+
+                    <View style={styles.cardMenuWrapper}>
+                      <Pressable onPress={() => handleToggleCardMenu(card.id)}>
+                        <MaterialIcons
+                          name="more-vert"
+                          size={20}
+                          color="#8f9bb2"
+                        />
+                      </Pressable>
+
+                      {openCardMenuId === card.id && (
+                        <View style={styles.cardMenu}>
+                          <Pressable
+                            style={styles.menuItem}
+                            onPress={() => handleEditCard(card.id)}
+                          >
+                            <MaterialIcons
+                              name="edit"
+                              size={18}
+                              color="#f5f7fb"
+                            />
+                            <Text style={styles.menuText}>Edit card</Text>
+                          </Pressable>
+
+                          <Pressable
+                            style={styles.menuItem}
+                            onPress={() => handleDeleteCard(card.id)}
+                          >
+                            <MaterialIcons
+                              name="delete-outline"
+                              size={18}
+                              color="#ff8f8f"
+                            />
+                            <Text style={styles.menuTextDanger}>
+                              Delete card
+                            </Text>
+                          </Pressable>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
                   <Text style={styles.cardFront}>{card.front}</Text>
                   <Text style={styles.cardBack}>{card.back}</Text>
                 </View>
@@ -301,10 +426,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 18,
   },
-  topBarActions: {
-    flexDirection: "row",
-    gap: 10,
-  },
   iconButton: {
     width: 44,
     height: 44,
@@ -314,6 +435,46 @@ const styles = StyleSheet.create({
     borderColor: "#232a36",
     alignItems: "center",
     justifyContent: "center",
+  },
+  menuWrapper: {
+    position: "relative",
+  },
+  menuBackdrop: {
+    position: "absolute",
+    top: -24,
+    right: -18,
+    bottom: -600,
+    left: -320,
+    zIndex: 1,
+  },
+  menuCard: {
+    position: "absolute",
+    top: 52,
+    right: 0,
+    width: 170,
+    backgroundColor: "#121722",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    paddingVertical: 8,
+    zIndex: 2,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  menuText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#f5f7fb",
+  },
+  menuTextDanger: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#ff8f8f",
   },
   headerCard: {
     backgroundColor: "#121722",
@@ -441,13 +602,33 @@ const styles = StyleSheet.create({
     borderColor: "#232a36",
     marginBottom: 14,
   },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  cardMenuWrapper: {
+    position: "relative",
+  },
+  cardMenu: {
+    position: "absolute",
+    top: 28,
+    right: 0,
+    width: 160,
+    backgroundColor: "#0f141d",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#232a36",
+    paddingVertical: 8,
+    zIndex: 3,
+  },
   cardIndex: {
     fontSize: 13,
     fontWeight: "600",
     color: "#8f9bb2",
     textTransform: "uppercase",
     letterSpacing: 0.6,
-    marginBottom: 10,
   },
   cardFront: {
     fontSize: 19,

@@ -10,12 +10,13 @@ export async function apiRequest(endpoint, options = {}) {
       ...options,
     });
 
-    const data = await response.json();
+    const responseText = await response.text();
+    const data = responseText ? JSON.parse(responseText) : null;
 
     if (!response.ok) {
       return {
         data: null,
-        error: data.message || "Request failed",
+        error: data?.message || "Request failed",
       };
     }
 
