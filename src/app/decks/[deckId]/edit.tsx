@@ -3,11 +3,13 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Alert,
+  Keyboard,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -98,86 +100,89 @@ export default function EditDeckScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.topBar}>
-          <Pressable style={styles.iconButton} onPress={() => router.back()}>
-            <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.topBar}>
+            <Pressable style={styles.iconButton} onPress={() => router.back()}>
+              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+            </Pressable>
+          </View>
+
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.heroCard}>
+              <Text style={styles.eyebrow}>Manage Details</Text>
+              <Text style={styles.title}>Edit Deck</Text>
+              <Text style={styles.subtitle}>
+                Refine the deck name, description, and visual color.
+              </Text>
+            </View>
+
+            <View style={styles.formCard}>
+              <View style={styles.field}>
+                <Text style={styles.label}>Title</Text>
+                <TextInput
+                  placeholder="German"
+                  placeholderTextColor="#8f9bb2"
+                  style={styles.input}
+                  value={title}
+                  onChangeText={setTitle}
+                  editable={!loading}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Description</Text>
+                <TextInput
+                  placeholder="Grammar, vocabulary, and sentence structure"
+                  placeholderTextColor="#8f9bb2"
+                  style={[styles.input, styles.textArea]}
+                  multiline
+                  textAlignVertical="top"
+                  value={description}
+                  onChangeText={setDescription}
+                  editable={!loading}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Color</Text>
+                <TextInput
+                  placeholder="#3B82F6"
+                  placeholderTextColor="#8f9bb2"
+                  style={styles.input}
+                  value={color}
+                  onChangeText={setColor}
+                  editable={!loading}
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+          </ScrollView>
+
+          <Pressable
+            style={[
+              styles.saveButton,
+              (loading || saving) && styles.saveButtonDisabled,
+            ]}
+            onPress={handleSave}
+            disabled={loading || saving}
+          >
+            <Text style={styles.saveButtonText}>
+              {loading
+                ? "Loading Deck..."
+                : saving
+                  ? "Saving..."
+                  : "Save Changes"}
+            </Text>
           </Pressable>
         </View>
-
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.heroCard}>
-            <Text style={styles.eyebrow}>Manage Details</Text>
-            <Text style={styles.title}>Edit Deck</Text>
-            <Text style={styles.subtitle}>
-              Refine the deck name, description, and visual color.
-            </Text>
-          </View>
-
-          <View style={styles.formCard}>
-            <View style={styles.field}>
-              <Text style={styles.label}>Title</Text>
-              <TextInput
-                placeholder="German"
-                placeholderTextColor="#8f9bb2"
-                style={styles.input}
-                value={title}
-                onChangeText={setTitle}
-                editable={!loading}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Description</Text>
-              <TextInput
-                placeholder="Grammar, vocabulary, and sentence structure"
-                placeholderTextColor="#8f9bb2"
-                style={[styles.input, styles.textArea]}
-                multiline
-                textAlignVertical="top"
-                value={description}
-                onChangeText={setDescription}
-                editable={!loading}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Color</Text>
-              <TextInput
-                placeholder="#3B82F6"
-                placeholderTextColor="#8f9bb2"
-                style={styles.input}
-                value={color}
-                onChangeText={setColor}
-                editable={!loading}
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-        </ScrollView>
-
-        <Pressable
-          style={[
-            styles.saveButton,
-            (loading || saving) && styles.saveButtonDisabled,
-          ]}
-          onPress={handleSave}
-          disabled={loading || saving}
-        >
-          <Text style={styles.saveButtonText}>
-            {loading
-              ? "Loading Deck..."
-              : saving
-                ? "Saving..."
-                : "Save Changes"}
-          </Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
