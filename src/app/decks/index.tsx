@@ -37,7 +37,7 @@ export default function DeckScreen() {
     if (response.error) {
       console.error("Failed to load decks:", response.error);
       setError(response.error);
-      Alert.alert("Decks konnten nicht geladen werden.", response.error);
+      Alert.alert("Failed to load decks", response.error);
     } else {
       setDecks(response.data);
       setError(null);

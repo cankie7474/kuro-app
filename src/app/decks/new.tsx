@@ -21,7 +21,7 @@ export default function CreateDeckScreen() {
 
   const handleCreateDeck = async () => {
     if (!title.trim()) {
-      Alert.alert("Titel fehlt", "Bitte gib einen Titel ein.");
+      Alert.alert("Missing title", "Please enter a title.");
       return;
     }
 

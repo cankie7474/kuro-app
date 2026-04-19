@@ -52,7 +52,7 @@ export default function StudyScreen() {
 
     if (response.error) {
       console.error("Failed to load study cards:", response.error);
-      Alert.alert("Lernkarten konnten nicht geladen werden.", response.error);
+      Alert.alert("Failed to load study cards", response.error);
       setCards([]);
     } else {
       setCards(response.data as Card[]);

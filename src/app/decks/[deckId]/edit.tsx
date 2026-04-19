@@ -48,7 +48,7 @@ export default function EditDeckScreen() {
 
     if (response.error) {
       console.error("Failed to load deck:", response.error);
-      Alert.alert("Deck konnte nicht geladen werden.", response.error);
+      Alert.alert("Failed to load deck", response.error);
     } else if (response.data) {
       const deck = response.data as Deck;
       setTitle(deck.title || "");
@@ -61,12 +61,13 @@ export default function EditDeckScreen() {
 
   const handleSave = async () => {
     if (!deckId) {
-      Alert.alert("Fehler", "Keine Deck-ID gefunden.");
+      console.error("Failed to update deck: missing deck ID");
+      Alert.alert("Error", "No deck ID found.");
       return;
     }
 
     if (!title.trim()) {
-      Alert.alert("Titel fehlt", "Bitte gib einen Titel ein.");
+      Alert.alert("Missing title", "Please enter a title.");
       return;
     }
 
@@ -85,13 +86,13 @@ export default function EditDeckScreen() {
 
     if (response.error) {
       console.error("Failed to update deck:", response.error);
-      Alert.alert("Update fehlgeschlagen", response.error);
+      Alert.alert("Failed to update deck", response.error);
       setSaving(false);
       return;
     }
 
     setSaving(false);
-    Alert.alert("Erfolgreich", "Deck wurde aktualisiert.", [
+    Alert.alert("Success", "Deck was updated.", [
       {
         text: "OK",
         onPress: () => router.back(),

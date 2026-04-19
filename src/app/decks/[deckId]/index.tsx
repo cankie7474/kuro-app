@@ -117,6 +117,7 @@ export default function DeckDetailScreen() {
 
   const handleDelete = async () => {
     if (!deckId) {
+      console.error("Failed to delete deck: missing deck ID");
       Alert.alert("Error", "No deck ID found.");
       return;
     }
@@ -124,6 +125,7 @@ export default function DeckDetailScreen() {
     const response = await laravelDeckService.deleteDeck(String(deckId));
 
     if (response.error) {
+      console.error("Failed to delete deck:", response.error);
       Alert.alert("Delete failed", response.error);
       return;
     }
@@ -142,6 +144,7 @@ export default function DeckDetailScreen() {
     const selectedCard = cards.find((card) => card.id === cardId);
 
     if (!selectedCard) {
+      console.error("Failed to edit card: card not found", cardId);
       Alert.alert("Error", "Card not found.");
       return;
     }
@@ -154,6 +157,10 @@ export default function DeckDetailScreen() {
   const handleDeleteCard = async (cardId: number) => {
     setOpenCardMenuId(null);
     if (!deckId || !cardId) {
+      console.error("Failed to delete card: missing deck or card ID", {
+        deckId,
+        cardId,
+      });
       Alert.alert("Error", "Missing deck or card ID.");
       return;
     }
@@ -161,6 +168,7 @@ export default function DeckDetailScreen() {
     const response = await laravelCardService.deleteCard(cardId, deckId);
 
     if (response.error) {
+      console.error("Failed to delete card:", response.error);
       Alert.alert("Failed to delete card", response.error);
     } else {
       if (editingCardId === cardId) {
@@ -174,7 +182,8 @@ export default function DeckDetailScreen() {
 
   const handleBeginStudy = () => {
     if (!deckId) {
-      return console.error();
+      console.error("Failed to begin study: missing deck ID");
+      return;
     } else {
       router.push(`/decks/${deckId}/study`);
     }
@@ -216,7 +225,8 @@ export default function DeckDetailScreen() {
     const response = await laravelCardService.createCard(data, deckId);
 
     if (response.error) {
-      console.error("Failed to create card", response.error);
+      console.error("Failed to create card:", response.error);
+      Alert.alert("Failed to create card", response.error);
     } else {
       setFront("");
       setBack("");
@@ -233,6 +243,10 @@ export default function DeckDetailScreen() {
 
   const handleSaveEditCard = async () => {
     if (!deckId || editingCardId === null) {
+      console.error("Failed to update card: missing deck or card ID", {
+        deckId,
+        editingCardId,
+      });
       Alert.alert("Error", "Missing deck or card ID.");
       return;
     }
@@ -254,6 +268,7 @@ export default function DeckDetailScreen() {
     );
 
     if (response.error) {
+      console.error("Failed to update card:", response.error);
       Alert.alert("Failed to update card", response.error);
       setSavingCardEdit(false);
       return;
