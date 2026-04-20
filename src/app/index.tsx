@@ -14,7 +14,7 @@ export default function Index() {
     router.push("/login");
   };
 
-  const handleDemo = () => {
+  const handleRegister = () => {
     router.push("/register");
   };
 
@@ -41,7 +41,7 @@ export default function Index() {
           </View>
 
           <View style={styles.actions}>
-            <Pressable style={styles.primaryButton} onPress={handleDemo}>
+            <Pressable style={styles.primaryButton} onPress={handleRegister}>
               <Text style={styles.primaryButtonText}>Get Started</Text>
             </Pressable>
 
