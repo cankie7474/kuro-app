@@ -14,20 +14,31 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import laravelDeckService from "../../../services/laravelDeckService";
 import { router, useFocusEffect } from "expo-router";
+import { useAuth } from "../../context/AuthContext";
 
 export default function DeckScreen() {
+  const { user, loading: authLoading, logout } = useAuth();
   const [decks, setDecks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDecks();
-  }, []);
+    if (!authLoading && !user) {
+      router.replace("/login");
+      return;
+    }
+
+    if (user) {
+      fetchDecks();
+    }
+  }, [authLoading, user]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchDecks();
-    }, [])
+      if (user) {
+        fetchDecks();
+      }
+    }, [user])
   );
 
   const fetchDecks = async () => {
@@ -52,6 +63,30 @@ export default function DeckScreen() {
   const handleAddDeck = () => {
     router.push(`/decks/new`);
   };
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/login");
+  };
+
+  if (authLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View style={styles.centerLoading}>
+            <Text style={styles.stateText}>Checking session...</Text>
+            <ActivityIndicator
+              size="large"
+              style={styles.activityIndicator}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
 
   if (loading) {
     return (
@@ -133,13 +168,23 @@ export default function DeckScreen() {
                   </Text>
                 </View>
 
-                <TouchableOpacity
-                  style={styles.addButton}
-                  onPress={handleAddDeck}
-                  activeOpacity={0.85}
-                >
-                  <MaterialIcons name="add" size={24} color="#f5f7fb" />
-                </TouchableOpacity>
+                <View style={styles.headerActions}>
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={handleLogout}
+                    activeOpacity={0.85}
+                  >
+                    <MaterialIcons name="logout" size={20} color="#f5f7fb" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={handleAddDeck}
+                    activeOpacity={0.85}
+                  >
+                    <MaterialIcons name="add" size={24} color="#f5f7fb" />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           }
@@ -180,6 +225,10 @@ const styles = StyleSheet.create({
   headerCopy: {
     flex: 1,
   },
+  headerActions: {
+    flexDirection: "row",
+    gap: 10,
+  },
   eyebrow: {
     fontSize: 13,
     fontWeight: "700",
@@ -199,7 +248,7 @@ const styles = StyleSheet.create({
     color: "#a7afbd",
     lineHeight: 24,
   },
-  addButton: {
+  iconButton: {
     width: 44,
     height: 44,
     borderRadius: 14,

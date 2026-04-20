@@ -11,12 +11,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const handleLogin = () => {
-    console.log("Login pressed");
+    router.push("/login");
   };
 
   const handleDemo = () => {
-    router.push("/decks");
-  }; 
+    router.push("/register");
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -42,7 +42,6 @@ export default function Index() {
 
           <View style={styles.actions}>
             <Pressable style={styles.primaryButton} onPress={handleDemo}>
-              {/* add register here */}
               <Text style={styles.primaryButtonText}>Get Started</Text>
             </Pressable>
 
