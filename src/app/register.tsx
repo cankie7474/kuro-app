@@ -16,9 +16,12 @@ export default function RegisterScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const handleRegister = async () => {
+    setSubmitting(true);
     const response = await register(name, email, password);
+    setSubmitting(false);
 
     if (response.error) {
       Alert.alert("Register failed", response.error);
@@ -60,8 +63,14 @@ export default function RegisterScreen() {
           onChangeText={setPassword}
         />
 
-        <Pressable style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Create account</Text>
+        <Pressable
+          style={[styles.button, submitting && styles.buttonDisabled]}
+          onPress={handleRegister}
+          disabled={submitting}
+        >
+          <Text style={styles.buttonText}>
+            {submitting ? "Creating..." : "Create account"}
+          </Text>
         </Pressable>
 
         <Pressable onPress={() => router.push("/login")}>
@@ -90,6 +99,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     alignItems: "center",
     marginTop: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: { color: "#0c0f14", fontSize: 16, fontWeight: "600" },
   link: { color: "#8f9bb2", textAlign: "center", marginTop: 10 },
