@@ -13,8 +13,8 @@ import {
 } from "react-native";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import laravelCardService from "../../../../services/laravelCardService";
-import laravelDeckService from "../../../../services/laravelDeckService";
+import laravelCardService from "../../../../../services/laravelCardService";
+import laravelDeckService from "../../../../../services/laravelDeckService";
 
 type Card = {
   id: number;

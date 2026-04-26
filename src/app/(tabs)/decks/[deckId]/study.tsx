@@ -17,7 +17,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import laravelCardService from "../../../../services/laravelCardService";
+import laravelCardService from "../../../../../services/laravelCardService";
 
 type Card = {
   id: number;

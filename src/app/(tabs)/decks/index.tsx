@@ -12,9 +12,9 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import laravelDeckService from "../../../services/laravelDeckService";
+import laravelDeckService from "../../../../services/laravelDeckService";
 import { router, useFocusEffect } from "expo-router";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function DeckScreen() {
   const { user, loading: authLoading, logout } = useAuth();

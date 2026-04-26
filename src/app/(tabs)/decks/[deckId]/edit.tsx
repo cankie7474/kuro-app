@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import laravelDeckService from "../../../../services/laravelDeckService";
+import laravelDeckService from "../../../../../services/laravelDeckService";
 
 type Deck = {
   id: number;

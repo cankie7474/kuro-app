@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
-import laravelDeckService from "../../../services/laravelDeckService";
+import laravelDeckService from "../../../../services/laravelDeckService";
 
 export default function CreateDeckScreen() {
   const [title, setTitle] = useState("");
