@@ -15,6 +15,13 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import laravelCardService from "../../../../../services/laravelCardService";
 import laravelDeckService from "../../../../../services/laravelDeckService";
+import {
+  colors,
+  fontWeight,
+  globalStyles,
+  radius,
+  spacing,
+} from "../../../../styles/global";
 
 type Card = {
   id: number;
@@ -306,12 +313,12 @@ export default function DeckDetailScreen() {
         >
           <View style={styles.topBar}>
             <Pressable style={styles.iconButton} onPress={handleBack}>
-              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </Pressable>
 
             <View style={styles.menuWrapper}>
               <Pressable style={styles.iconButton} onPress={handleToggleMenu}>
-                <MaterialIcons name="more-vert" size={22} color="#f5f7fb" />
+                <MaterialIcons name="more-vert" size={22} color={colors.text} />
               </Pressable>
 
               {showMenu && (
@@ -323,7 +330,11 @@ export default function DeckDetailScreen() {
 
                   <View style={styles.menuCard}>
                     <Pressable style={styles.menuItem} onPress={handleEditDeck}>
-                      <MaterialIcons name="edit" size={18} color="#f5f7fb" />
+                      <MaterialIcons
+                        name="edit"
+                        size={18}
+                        color={colors.text}
+                      />
                       <Text style={styles.menuText}>Edit deck</Text>
                     </Pressable>
 
@@ -331,7 +342,7 @@ export default function DeckDetailScreen() {
                       <MaterialIcons
                         name="delete-outline"
                         size={18}
-                        color="#ff8f8f"
+                        color={colors.danger}
                       />
                       <Text style={styles.menuTextDanger}>Delete deck</Text>
                     </Pressable>
@@ -345,7 +356,7 @@ export default function DeckDetailScreen() {
             <View
               style={[
                 styles.deckAccent,
-                { backgroundColor: deck?.color || "#8aa0ff" },
+                { backgroundColor: deck?.color || colors.accentBlue },
               ]}
             />
             <Text style={styles.title}>{deck?.title || "Deck"}</Text>
@@ -370,7 +381,7 @@ export default function DeckDetailScreen() {
                 <MaterialIcons
                   name={showCreateCard ? "close" : "add"}
                   size={20}
-                  color="#f5f7fb"
+                  color={colors.text}
                 />
               </Pressable>
 
@@ -378,7 +389,7 @@ export default function DeckDetailScreen() {
                 <MaterialIcons
                   name={cardsExpanded ? "expand-less" : "expand-more"}
                   size={24}
-                  color="#8f9bb2"
+                  color={colors.textSubtle}
                 />
               </Pressable>
             </View>
@@ -390,7 +401,7 @@ export default function DeckDetailScreen() {
 
               <TextInput
                 placeholder="Front"
-                placeholderTextColor="#8f9bb2"
+                placeholderTextColor={colors.textSubtle}
                 style={styles.input}
                 value={front}
                 onChangeText={setFront}
@@ -398,7 +409,7 @@ export default function DeckDetailScreen() {
 
               <TextInput
                 placeholder="Back"
-                placeholderTextColor="#8f9bb2"
+                placeholderTextColor={colors.textSubtle}
                 style={[styles.input, styles.textArea]}
                 multiline
                 textAlignVertical="top"
@@ -431,7 +442,7 @@ export default function DeckDetailScreen() {
                         <MaterialIcons
                           name="more-vert"
                           size={20}
-                          color="#8f9bb2"
+                          color={colors.textSubtle}
                         />
                       </Pressable>
 
@@ -444,7 +455,7 @@ export default function DeckDetailScreen() {
                             <MaterialIcons
                               name="edit"
                               size={18}
-                              color="#f5f7fb"
+                              color={colors.text}
                             />
                             <Text style={styles.menuText}>Edit card</Text>
                           </Pressable>
@@ -456,7 +467,7 @@ export default function DeckDetailScreen() {
                             <MaterialIcons
                               name="delete-outline"
                               size={18}
-                              color="#ff8f8f"
+                              color={colors.danger}
                             />
                             <Text style={styles.menuTextDanger}>
                               Delete card
@@ -471,7 +482,7 @@ export default function DeckDetailScreen() {
                     <View style={styles.editCardBox}>
                       <TextInput
                         placeholder="Front"
-                        placeholderTextColor="#8f9bb2"
+                        placeholderTextColor={colors.textSubtle}
                         style={styles.input}
                         value={editFront}
                         onChangeText={setEditFront}
@@ -479,7 +490,7 @@ export default function DeckDetailScreen() {
 
                       <TextInput
                         placeholder="Back"
-                        placeholderTextColor="#8f9bb2"
+                        placeholderTextColor={colors.textSubtle}
                         style={[styles.input, styles.textArea]}
                         multiline
                         textAlignVertical="top"
@@ -501,7 +512,7 @@ export default function DeckDetailScreen() {
                         <Pressable
                           style={[
                             styles.editSaveButton,
-                            savingCardEdit && styles.saveButtonDisabled,
+                            savingCardEdit && globalStyles.buttonDisabled,
                           ]}
                           onPress={handleSaveEditCard}
                           disabled={savingCardEdit}
@@ -532,44 +543,32 @@ export default function DeckDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 32,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing["3xl"],
   },
   centerState: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing["2xl"],
   },
   stateText: {
-    color: "#a7afbd",
+    color: colors.textMuted,
     fontSize: 16,
   },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#121722",
-    borderWidth: 1,
-    borderColor: "#232a36",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  iconButton: globalStyles.iconButton,
   menuWrapper: {
     position: "relative",
   },
@@ -586,10 +585,10 @@ const styles = StyleSheet.create({
     top: 52,
     right: 0,
     width: 170,
-    backgroundColor: "#121722",
-    borderRadius: 18,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     paddingVertical: 8,
     zIndex: 2,
   },
@@ -602,38 +601,38 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.semibold,
+    color: colors.text,
   },
   menuTextDanger: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#ff8f8f",
+    fontWeight: fontWeight.semibold,
+    color: colors.danger,
   },
   headerCard: {
-    backgroundColor: "#121722",
-    borderRadius: 28,
+    backgroundColor: colors.surface,
+    borderRadius: radius["2xl"],
     padding: 20,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     marginBottom: 20,
   },
   deckAccent: {
     width: 16,
     height: 16,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     marginBottom: 16,
   },
   title: {
     fontSize: 32,
-    fontWeight: "800",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.extraBold,
+    color: colors.text,
     marginBottom: 10,
   },
   description: {
     fontSize: 15,
     lineHeight: 23,
-    color: "#a7afbd",
+    color: colors.textMuted,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -652,88 +651,88 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
   },
   sectionMeta: {
     fontSize: 14,
-    color: "#8f9bb2",
+    color: colors.textSubtle,
   },
   addCardButton: {
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: "#121722",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
   createCardBox: {
-    backgroundColor: "#121722",
+    backgroundColor: colors.surface,
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     marginBottom: 18,
   },
   createCardTitle: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
     marginBottom: 10,
   },
   input: {
-    backgroundColor: "#0f141d",
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 15,
-    color: "#f5f7fb",
+    color: colors.text,
     marginBottom: 12,
   },
   textArea: {
     minHeight: 110,
   },
   createButton: {
-    backgroundColor: "#f5f7fb",
-    borderRadius: 999,
+    backgroundColor: colors.text,
+    borderRadius: radius.pill,
     paddingVertical: 15,
     alignItems: "center",
     marginTop: 4,
   },
   createButtonText: {
-    color: "#0c111b",
+    color: colors.primaryText,
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
   },
   emptyCard: {
-    backgroundColor: "#121722",
+    backgroundColor: colors.surface,
     borderRadius: 24,
     padding: 20,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     marginBottom: 18,
   },
   emptyTitle: {
-    color: "#f5f7fb",
+    color: colors.text,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     marginBottom: 8,
   },
   emptyText: {
-    color: "#a7afbd",
+    color: colors.textMuted,
     fontSize: 15,
     lineHeight: 22,
   },
   card: {
-    backgroundColor: "#121722",
+    backgroundColor: colors.surface,
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     marginBottom: 14,
   },
   cardHeader: {
@@ -750,30 +749,30 @@ const styles = StyleSheet.create({
     top: 28,
     right: 0,
     width: 160,
-    backgroundColor: "#0f141d",
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     paddingVertical: 8,
     zIndex: 3,
   },
   cardIndex: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#8f9bb2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textSubtle,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
   cardFront: {
     fontSize: 19,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
     marginBottom: 12,
   },
   cardBack: {
     fontSize: 15,
     lineHeight: 23,
-    color: "#a7afbd",
+    color: colors.textMuted,
   },
   editCardBox: {
     marginTop: 4,
@@ -784,43 +783,40 @@ const styles = StyleSheet.create({
   },
   editCancelButton: {
     flex: 1,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     paddingVertical: 14,
     alignItems: "center",
-    backgroundColor: "#0f141d",
+    backgroundColor: colors.surfaceMuted,
   },
   editCancelButtonText: {
-    color: "#dfe5f2",
+    color: colors.textStrong,
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: fontWeight.semibold,
   },
   editSaveButton: {
     flex: 1,
-    borderRadius: 999,
+    borderRadius: radius.pill,
     paddingVertical: 14,
     alignItems: "center",
-    backgroundColor: "#f5f7fb",
+    backgroundColor: colors.text,
   },
   editSaveButtonText: {
-    color: "#0c111b",
+    color: colors.primaryText,
     fontSize: 15,
-    fontWeight: "700",
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
+    fontWeight: fontWeight.bold,
   },
   studyButton: {
-    backgroundColor: "#f4f7fb",
-    borderRadius: 999,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
     paddingVertical: 18,
     alignItems: "center",
     marginTop: 8,
   },
   studyButtonText: {
-    color: "#0c0f14",
+    color: colors.textInverse,
     fontSize: 17,
-    fontWeight: "600",
+    fontWeight: fontWeight.semibold,
   },
 });

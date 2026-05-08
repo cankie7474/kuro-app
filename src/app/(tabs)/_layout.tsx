@@ -2,15 +2,13 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Tabs } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors, radius, shadows } from "../../styles/global";
 
 const TABS = [
   { name: "index", icon: "home" as const, label: "Home" },
   { name: "decks", icon: "library-books" as const, label: "Decks" },
   { name: "profile", icon: "account-circle" as const, label: "Profile" },
 ];
-
-const PURPLE = "#b987ff";
-const INACTIVE = "#7d8498";
 
 type TabIconProps = {
   focused: boolean;
@@ -19,7 +17,7 @@ type TabIconProps = {
 };
 
 function TabIcon({ focused, iconName, label }: TabIconProps) {
-  const color = focused ? PURPLE : INACTIVE;
+  const color = focused ? colors.accent : colors.tabInactive;
 
   return (
     <View style={[styles.tabContent, focused && styles.tabContentActive]}>
@@ -38,7 +36,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         sceneStyle: {
-          backgroundColor: "#090b10",
+          backgroundColor: colors.background,
           paddingBottom: 66 + bottomOffset,
         },
         tabBarHideOnKeyboard: true,
@@ -73,17 +71,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
     paddingHorizontal: 6,
-    backgroundColor: "#090b10",
+    backgroundColor: colors.tabBar,
     borderTopWidth: 0,
     borderWidth: 1,
-    borderColor: "#24293a",
-    borderRadius: 22,
+    borderColor: colors.tabBarBorder,
+    borderRadius: radius.xl,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOpacity: 0.45,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 0,
+    ...shadows.tabBar,
   },
   tabBarItem: {
     flex: 1,
@@ -105,12 +99,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 2,
     borderWidth: 1,
-    borderColor: "transparent",
+    borderColor: colors.transparent,
     position: "relative",
   },
   tabContentActive: {
-    backgroundColor: "#2a2140",
-    borderColor: "#4e3b72",
+    backgroundColor: colors.accentSurface,
+    borderColor: colors.accentBorder,
   },
   tabLabel: {
     fontSize: 10,

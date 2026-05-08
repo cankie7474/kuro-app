@@ -13,6 +13,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import laravelDeckService from "../../../../services/laravelDeckService";
+import {
+  colors,
+  fontWeight,
+  globalStyles,
+  radius,
+  spacing,
+} from "../../../styles/global";
 
 export default function CreateDeckScreen() {
   const [title, setTitle] = useState("");
@@ -52,7 +59,7 @@ export default function CreateDeckScreen() {
               onPress={() => router.back()}
               activeOpacity={0.85}
             >
-              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -69,7 +76,7 @@ export default function CreateDeckScreen() {
               <Text style={styles.label}>Title</Text>
               <TextInput
                 placeholder="Deutsch"
-                placeholderTextColor="#8f9bb2"
+                placeholderTextColor={colors.textSubtle}
                 style={styles.input}
                 value={title}
                 onChangeText={setTitle}
@@ -80,7 +87,7 @@ export default function CreateDeckScreen() {
               <Text style={styles.label}>Description</Text>
               <TextInput
                 placeholder="Wortarten und Grammatik"
-                placeholderTextColor="#8f9bb2"
+                placeholderTextColor={colors.textSubtle}
                 style={[styles.input, styles.textArea]}
                 multiline
                 textAlignVertical="top"
@@ -92,8 +99,8 @@ export default function CreateDeckScreen() {
             <View style={styles.field}>
               <Text style={styles.label}>Color</Text>
               <TextInput
-                placeholder="#3B82F6"
-                placeholderTextColor="#8f9bb2"
+                placeholder={colors.deckInputPlaceholder}
+                placeholderTextColor={colors.textSubtle}
                 style={styles.input}
                 value={color}
                 onChangeText={setColor}
@@ -115,28 +122,18 @@ export default function CreateDeckScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: spacing["2xl"],
+    paddingTop: spacing["2xl"],
     paddingBottom: 28,
   },
   topBar: {
-    marginBottom: 24,
+    marginBottom: spacing["2xl"],
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#121722",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#232a36",
+    ...globalStyles.iconButton,
     alignSelf: "flex-start",
   },
   header: {
@@ -144,22 +141,22 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#8f9bb2",
+    color: colors.textSubtle,
     marginBottom: 10,
   },
   title: {
     fontSize: 32,
-    fontWeight: "800",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.extraBold,
+    color: colors.text,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 15,
     lineHeight: 22,
-    color: "#a7afbd",
+    color: colors.textMuted,
   },
   form: {
     gap: 18,
@@ -169,32 +166,29 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#dfe5f2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textStrong,
   },
   input: {
-    backgroundColor: "#121722",
-    borderWidth: 1,
-    borderColor: "#232a36",
-    borderRadius: 18,
+    ...globalStyles.input,
+    borderRadius: radius.lg,
     paddingHorizontal: 16,
     paddingVertical: 15,
     fontSize: 15,
-    color: "#f5f7fb",
   },
   textArea: {
     minHeight: 130,
   },
   button: {
     marginTop: "auto",
-    backgroundColor: "#f5f7fb",
-    borderRadius: 999,
+    backgroundColor: colors.text,
+    borderRadius: radius.pill,
     paddingVertical: 16,
     alignItems: "center",
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#0c111b",
+    fontWeight: fontWeight.bold,
+    color: colors.primaryText,
   },
 });

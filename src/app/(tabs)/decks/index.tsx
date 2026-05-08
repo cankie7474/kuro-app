@@ -15,6 +15,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import laravelDeckService from "../../../../services/laravelDeckService";
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "../../../context/AuthContext";
+import {
+  colors,
+  fontWeight,
+  globalStyles,
+  radius,
+  spacing,
+} from "../../../styles/global";
 
 export default function DeckScreen() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -78,10 +85,7 @@ export default function DeckScreen() {
         >
           <View style={styles.centerLoading}>
             <Text style={styles.stateText}>Checking session...</Text>
-            <ActivityIndicator
-              size="large"
-              style={styles.activityIndicator}
-            />
+            <ActivityIndicator size="large" style={styles.activityIndicator} />
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -139,7 +143,7 @@ export default function DeckScreen() {
                 <View
                   style={[
                     styles.colorBadge,
-                    { backgroundColor: item.color || "#4b5563" },
+                    { backgroundColor: item.color || colors.deckFallback },
                   ]}
                 />
                 <Text style={styles.cardMeta}>Deck</Text>
@@ -174,7 +178,11 @@ export default function DeckScreen() {
                     onPress={handleLogout}
                     activeOpacity={0.85}
                   >
-                    <MaterialIcons name="logout" size={20} color="#f5f7fb" />
+                    <MaterialIcons
+                      name="logout"
+                      size={20}
+                      color={colors.text}
+                    />
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -182,7 +190,7 @@ export default function DeckScreen() {
                     onPress={handleAddDeck}
                     activeOpacity={0.85}
                   >
-                    <MaterialIcons name="add" size={24} color="#f5f7fb" />
+                    <MaterialIcons name="add" size={24} color={colors.text} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -200,16 +208,13 @@ export default function DeckScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 18,
-    paddingTop: 18,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
     paddingBottom: 28,
   },
   header: {
@@ -220,7 +225,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 16,
+    gap: spacing.lg,
   },
   headerCopy: {
     flex: 1,
@@ -231,43 +236,36 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#8f9bb2",
+    color: colors.textSubtle,
     marginBottom: 10,
   },
   title: {
     fontSize: 34,
-    fontWeight: "800",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.extraBold,
+    color: colors.text,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 16,
-    color: "#a7afbd",
+    color: colors.textMuted,
     lineHeight: 24,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#121722",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#232a36",
+    ...globalStyles.iconButton,
   },
   card: {
-    backgroundColor: "#121722",
+    backgroundColor: colors.surface,
     borderRadius: 26,
     padding: 18,
     marginBottom: 16,
     minHeight: 156,
     justifyContent: "space-between",
     borderWidth: 1,
-    borderColor: "#232a36",
-    shadowColor: "#000000",
+    borderColor: colors.border,
+    shadowColor: colors.black,
     shadowOpacity: 0.22,
     shadowRadius: 18,
     shadowOffset: {
@@ -284,12 +282,12 @@ const styles = StyleSheet.create({
   colorBadge: {
     width: 14,
     height: 14,
-    borderRadius: 999,
+    borderRadius: radius.pill,
   },
   cardMeta: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#8f9bb2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textSubtle,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
@@ -298,29 +296,29 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 24,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
     marginBottom: 10,
   },
   cardDescription: {
     fontSize: 15,
-    color: "#a7afbd",
+    color: colors.textMuted,
     lineHeight: 22,
   },
   cardFooter: {
     marginTop: 20,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: "#1d2430",
+    borderTopColor: colors.borderMuted,
   },
   cardAction: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#dfe5f2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textStrong,
   },
   stateText: {
     fontSize: 16,
-    color: "#a7afbd",
+    color: colors.textMuted,
     textAlign: "center",
   },
   activityIndicator: {

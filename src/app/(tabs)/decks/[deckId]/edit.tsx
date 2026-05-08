@@ -14,6 +14,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import laravelDeckService from "../../../../../services/laravelDeckService";
+import {
+  colors,
+  fontWeight,
+  globalStyles,
+  radius,
+  spacing,
+} from "../../../../styles/global";
 
 type Deck = {
   id: number;
@@ -106,7 +113,7 @@ export default function EditDeckScreen() {
         <View style={styles.container}>
           <View style={styles.topBar}>
             <Pressable style={styles.iconButton} onPress={() => router.back()}>
-              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </Pressable>
           </View>
 
@@ -128,7 +135,7 @@ export default function EditDeckScreen() {
                 <Text style={styles.label}>Title</Text>
                 <TextInput
                   placeholder="German"
-                  placeholderTextColor="#8f9bb2"
+                  placeholderTextColor={colors.textSubtle}
                   style={styles.input}
                   value={title}
                   onChangeText={setTitle}
@@ -140,7 +147,7 @@ export default function EditDeckScreen() {
                 <Text style={styles.label}>Description</Text>
                 <TextInput
                   placeholder="Grammar, vocabulary, and sentence structure"
-                  placeholderTextColor="#8f9bb2"
+                  placeholderTextColor={colors.textSubtle}
                   style={[styles.input, styles.textArea]}
                   multiline
                   textAlignVertical="top"
@@ -153,8 +160,8 @@ export default function EditDeckScreen() {
               <View style={styles.field}>
                 <Text style={styles.label}>Color</Text>
                 <TextInput
-                  placeholder="#3B82F6"
-                  placeholderTextColor="#8f9bb2"
+                  placeholder={colors.deckInputPlaceholder}
+                  placeholderTextColor={colors.textSubtle}
                   style={styles.input}
                   value={color}
                   onChangeText={setColor}
@@ -168,7 +175,7 @@ export default function EditDeckScreen() {
           <Pressable
             style={[
               styles.saveButton,
-              (loading || saving) && styles.saveButtonDisabled,
+              (loading || saving) && globalStyles.buttonDisabled,
             ]}
             onPress={handleSave}
             disabled={loading || saving}
@@ -188,103 +195,84 @@ export default function EditDeckScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 24,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing["2xl"],
   },
   topBar: {
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#121722",
-    borderWidth: 1,
-    borderColor: "#232a36",
-    alignItems: "center",
-    justifyContent: "center",
+    ...globalStyles.iconButton,
     alignSelf: "flex-start",
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: spacing["2xl"],
   },
   heroCard: {
-    backgroundColor: "#121722",
-    borderRadius: 28,
+    ...globalStyles.card,
+    borderRadius: radius["2xl"],
     padding: 22,
-    borderWidth: 1,
-    borderColor: "#232a36",
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
   eyebrow: {
-    color: "#8f9bb2",
+    color: colors.textSubtle,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 10,
   },
   title: {
-    color: "#f5f7fb",
+    color: colors.text,
     fontSize: 30,
-    fontWeight: "800",
+    fontWeight: fontWeight.extraBold,
     marginBottom: 10,
   },
   subtitle: {
-    color: "#a7afbd",
+    color: colors.textMuted,
     fontSize: 15,
     lineHeight: 23,
   },
   formCard: {
-    backgroundColor: "#121722",
-    borderRadius: 28,
+    ...globalStyles.card,
+    borderRadius: radius["2xl"],
     padding: 18,
-    borderWidth: 1,
-    borderColor: "#232a36",
     gap: 16,
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
   field: {
     gap: 10,
   },
   label: {
-    color: "#dfe5f2",
+    color: colors.textStrong,
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: fontWeight.semibold,
   },
   input: {
-    backgroundColor: "#0f141d",
-    borderWidth: 1,
-    borderColor: "#232a36",
-    borderRadius: 18,
+    ...globalStyles.input,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.lg,
     paddingHorizontal: 16,
     paddingVertical: 15,
     fontSize: 15,
-    color: "#f5f7fb",
   },
   textArea: {
     minHeight: 130,
   },
   saveButton: {
-    backgroundColor: "#f5f7fb",
-    borderRadius: 999,
+    backgroundColor: colors.text,
+    borderRadius: radius.pill,
     paddingVertical: 17,
     alignItems: "center",
     marginTop: "auto",
   },
-  saveButtonDisabled: {
-    opacity: 0.6,
-  },
   saveButtonText: {
-    color: "#0c111b",
+    color: colors.primaryText,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: fontWeight.bold,
   },
 });

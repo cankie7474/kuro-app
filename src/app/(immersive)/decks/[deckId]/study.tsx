@@ -18,6 +18,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import laravelCardService from "../../../../../services/laravelCardService";
+import {
+  colors,
+  fontWeight,
+  globalStyles,
+  radius,
+  spacing,
+} from "../../../../styles/global";
 
 type Card = {
   id: number;
@@ -157,7 +164,7 @@ export default function StudyScreen() {
               onPress={handleBack}
               activeOpacity={0.8}
             >
-              <MaterialIcons name="arrow-back" size={22} color="#f5f7fb" />
+              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
             </TouchableOpacity>
 
             <Text style={styles.progressText}>
@@ -184,7 +191,7 @@ export default function StudyScreen() {
               <TouchableOpacity
                 style={[
                   styles.secondaryButton,
-                  currentIndex === 0 && styles.secondaryButtonDisabled,
+                  currentIndex === 0 && globalStyles.buttonDisabledStrong,
                 ]}
                 onPress={handlePreviousCard}
                 activeOpacity={0.8}
@@ -192,7 +199,7 @@ export default function StudyScreen() {
                 <Text
                   style={[
                     styles.secondaryButtonText,
-                    currentIndex === 0 && styles.secondaryButtonTextDisabled,
+                    currentIndex === 0 && globalStyles.textDisabled,
                   ]}
                 >
                   Previous
@@ -227,37 +234,34 @@ export default function StudyScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
   },
   screen: {
     flex: 1,
-    paddingHorizontal: 18,
-    paddingTop: 18,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
     paddingBottom: 28,
   },
   centerState: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing["2xl"],
   },
   stateTitle: {
     fontSize: 22,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
     marginBottom: 10,
   },
   stateText: {
-    color: "#a7afbd",
+    color: colors.textMuted,
     fontSize: 16,
     lineHeight: 24,
     textAlign: "center",
-    marginBottom: 18,
+    marginBottom: spacing.xl,
   },
   topBar: {
     flexDirection: "row",
@@ -265,54 +269,45 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 18,
   },
-  iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#121722",
-    borderWidth: 1,
-    borderColor: "#232a36",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  iconButton: globalStyles.iconButton,
   progressText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#8f9bb2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textSubtle,
   },
   card: {
     flex: 1,
-    backgroundColor: "#121722",
-    borderRadius: 28,
+    backgroundColor: colors.surface,
+    borderRadius: radius["2xl"],
     padding: 22,
     borderWidth: 1,
-    borderColor: "#232a36",
+    borderColor: colors.border,
     justifyContent: "space-between",
   },
   cardLabel: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#8f9bb2",
+    fontWeight: fontWeight.semibold,
+    color: colors.textSubtle,
     textTransform: "uppercase",
     letterSpacing: 0.6,
     marginBottom: 10,
   },
   cardFront: {
     fontSize: 28,
-    fontWeight: "700",
-    color: "#f5f7fb",
+    fontWeight: fontWeight.bold,
+    color: colors.text,
     lineHeight: 38,
   },
   answerBlock: {
     marginTop: 32,
     paddingTop: 18,
     borderTopWidth: 1,
-    borderTopColor: "#1d2430",
+    borderTopColor: colors.borderMuted,
   },
   cardBack: {
     fontSize: 17,
     lineHeight: 26,
-    color: "#c5cbda",
+    color: colors.textSecondary,
   },
   actions: {
     marginTop: 18,
@@ -323,34 +318,28 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: "#f4f7fb",
-    borderRadius: 999,
+    backgroundColor: colors.primary,
+    borderRadius: radius.pill,
     paddingVertical: 18,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: "#0c0f14",
+    color: colors.textInverse,
     fontSize: 17,
-    fontWeight: "600",
+    fontWeight: fontWeight.semibold,
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: "#121722",
-    borderRadius: 999,
+    backgroundColor: colors.surfacePrevious,
+    borderRadius: radius.pill,
     paddingVertical: 16,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#232a36",
-  },
-  secondaryButtonDisabled: {
-    opacity: 0.45,
+    borderColor: colors.border,
   },
   secondaryButtonText: {
-    color: "#d8deeb",
+    color: colors.textButtonSecondary,
     fontSize: 16,
-    fontWeight: "600",
-  },
-  secondaryButtonTextDisabled: {
-    color: "#8f9bb2",
+    fontWeight: fontWeight.semibold,
   },
 });

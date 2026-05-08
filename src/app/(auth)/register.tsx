@@ -10,6 +10,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../context/AuthContext";
+import {
+  colors,
+  fontSize,
+  fontWeight,
+  globalStyles,
+  spacing,
+} from "../../styles/global";
 
 export default function RegisterScreen() {
   const { register } = useAuth();
@@ -39,7 +46,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Name"
-          placeholderTextColor="#7c8596"
+          placeholderTextColor={colors.textDisabled}
           value={name}
           onChangeText={setName}
         />
@@ -47,7 +54,7 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#7c8596"
+          placeholderTextColor={colors.textDisabled}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
@@ -57,14 +64,14 @@ export default function RegisterScreen() {
         <TextInput
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#7c8596"
+          placeholderTextColor={colors.textDisabled}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
         />
 
         <Pressable
-          style={[styles.button, submitting && styles.buttonDisabled]}
+          style={[styles.button, submitting && globalStyles.buttonDisabled]}
           onPress={handleRegister}
           disabled={submitting}
         >
@@ -82,27 +89,29 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#090b10" },
-  container: { flex: 1, justifyContent: "center", padding: 24, gap: 14 },
-  title: { color: "#fff", fontSize: 32, fontWeight: "700", marginBottom: 12 },
-  input: {
-    backgroundColor: "#121722",
-    color: "#fff",
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#232a36",
+  safeArea: globalStyles.safeArea,
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: spacing["2xl"],
+    gap: 14,
   },
+  title: {
+    ...globalStyles.title,
+    color: colors.white,
+    marginBottom: spacing.md,
+  },
+  input: { ...globalStyles.input, padding: spacing.lg },
   button: {
-    backgroundColor: "#f4f7fb",
-    padding: 16,
-    borderRadius: 999,
+    ...globalStyles.primaryButton,
+    padding: spacing.lg,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
-  buttonDisabled: {
-    opacity: 0.7,
+  buttonText: {
+    color: colors.textInverse,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.semibold,
   },
-  buttonText: { color: "#0c0f14", fontSize: 16, fontWeight: "600" },
-  link: { color: "#8f9bb2", textAlign: "center", marginTop: 10 },
+  link: { color: colors.textSubtle, textAlign: "center", marginTop: 10 },
 });

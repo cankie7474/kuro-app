@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors, fontWeight, globalStyles, spacing } from "../../styles/global";
 
 export default function DashboardScreen() {
   return (
@@ -13,23 +14,20 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#090b10",
-  },
+  safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: spacing["2xl"],
   },
   title: {
-    color: "#f5f7fb",
+    color: colors.text,
     fontSize: 34,
-    fontWeight: "800",
-    marginBottom: 12,
+    fontWeight: fontWeight.extraBold,
+    marginBottom: spacing.md,
   },
   demoText: {
-    color: "#a7afbd",
+    color: colors.textMuted,
     fontSize: 17,
     lineHeight: 26,
   },
