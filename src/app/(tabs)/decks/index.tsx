@@ -24,7 +24,7 @@ import {
 } from "../../../styles/global";
 
 export default function DeckScreen() {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [decks, setDecks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,11 +69,6 @@ export default function DeckScreen() {
 
   const handleAddDeck = () => {
     router.push(`/decks/new`);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.replace("/login");
   };
 
   if (authLoading) {
@@ -173,18 +168,6 @@ export default function DeckScreen() {
                 </View>
 
                 <View style={styles.headerActions}>
-                  <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={handleLogout}
-                    activeOpacity={0.85}
-                  >
-                    <MaterialIcons
-                      name="logout"
-                      size={20}
-                      color={colors.text}
-                    />
-                  </TouchableOpacity>
-
                   <TouchableOpacity
                     style={styles.iconButton}
                     onPress={handleAddDeck}
