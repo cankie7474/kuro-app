@@ -37,7 +37,7 @@ export default function ProfileScreen() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.eyebrow}>Account</Text>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.title}>Your profile</Text>
         </View>
 
         <View style={styles.profileCard}>

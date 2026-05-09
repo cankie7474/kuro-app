@@ -123,8 +123,8 @@ export default function EditDeckScreen() {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.heroCard}>
-              <Text style={styles.eyebrow}>Manage Details</Text>
-              <Text style={styles.title}>Edit Deck</Text>
+              <Text style={styles.eyebrow}>Deck settings</Text>
+              <Text style={styles.title}>Edit details</Text>
               <Text style={styles.subtitle}>
                 Refine the deck name, description, and visual color.
               </Text>

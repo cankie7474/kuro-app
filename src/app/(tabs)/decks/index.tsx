@@ -161,7 +161,7 @@ export default function DeckScreen() {
               <View style={styles.headerTopRow}>
                 <View style={styles.headerCopy}>
                   <Text style={styles.eyebrow}>Library</Text>
-                  <Text style={styles.title}>Your Decks</Text>
+                  <Text style={styles.title}>Your decks</Text>
                   <Text style={styles.subtitle}>
                     Review your subjects and continue where you left off.
                   </Text>

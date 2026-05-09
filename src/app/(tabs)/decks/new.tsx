@@ -64,8 +64,8 @@ export default function CreateDeckScreen() {
           </View>
 
           <View style={styles.header}>
-            <Text style={styles.eyebrow}>New Deck</Text>
-            <Text style={styles.title}>Create Deck</Text>
+            <Text style={styles.eyebrow}>Create</Text>
+            <Text style={styles.title}>New deck</Text>
             <Text style={styles.subtitle}>
               Add a title, description and color for your new deck.
             </Text>

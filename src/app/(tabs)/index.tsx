@@ -52,7 +52,7 @@ export default function DashboardScreen() {
         <View style={styles.header}>
           <Text style={styles.eyebrow}>Dashboard</Text>
           <Text style={styles.title}>
-            Your learning space{user?.name ? `, ${user.name}` : ""}
+            Ready to learn{user?.name ? `, ${user.name}` : ""}?
           </Text>
         </View>
 
