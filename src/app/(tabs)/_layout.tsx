@@ -1,6 +1,7 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Tabs } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { Tabs, usePathname } from "expo-router";
+import { useEffect, useState } from "react";
+import { Keyboard, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radius, shadows } from "../../styles/global";
 
@@ -29,7 +30,25 @@ function TabIcon({ focused, iconName, label }: TabIconProps) {
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
   const bottomOffset = Math.max(insets.bottom, 12);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const hideTabBar =
+    keyboardVisible || pathname === "/decks/new" || pathname.endsWith("/edit");
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <Tabs
@@ -37,13 +56,17 @@ export default function TabsLayout() {
         headerShown: false,
         sceneStyle: {
           backgroundColor: colors.background,
-          paddingBottom: 66 + bottomOffset,
+          paddingBottom: hideTabBar ? 0 : 66 + bottomOffset,
         },
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
         tabBarIconStyle: styles.tabBarIcon,
         tabBarItemStyle: styles.tabBarItem,
-        tabBarStyle: [styles.tabBar, { bottom: bottomOffset }],
+        tabBarStyle: [
+          styles.tabBar,
+          { bottom: bottomOffset },
+          hideTabBar && styles.tabBarHidden,
+        ],
       }}
     >
       {TABS.map(({ name, icon, label }) => (
@@ -78,6 +101,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     overflow: "hidden",
     ...shadows.tabBar,
+  },
+  tabBarHidden: {
+    display: "none",
   },
   tabBarItem: {
     flex: 1,

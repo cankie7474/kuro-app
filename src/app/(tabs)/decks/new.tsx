@@ -2,6 +2,9 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import {
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -52,70 +55,83 @@ export default function CreateDeckScreen() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          <View style={styles.topBar}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-              activeOpacity={0.85}
-            >
-              <MaterialIcons name="arrow-back" size={22} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.header}>
-            <Text style={styles.eyebrow}>Create</Text>
-            <Text style={styles.title}>New deck</Text>
-            <Text style={styles.subtitle}>
-              Add a title, description and color for your new deck.
-            </Text>
-          </View>
-
-          <View style={styles.form}>
-            <View style={styles.field}>
-              <Text style={styles.label}>Title</Text>
-              <TextInput
-                placeholder="Deutsch"
-                placeholderTextColor={colors.textSubtle}
-                style={styles.input}
-                value={title}
-                onChangeText={setTitle}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Description</Text>
-              <TextInput
-                placeholder="Wortarten und Grammatik"
-                placeholderTextColor={colors.textSubtle}
-                style={[styles.input, styles.textArea]}
-                multiline
-                textAlignVertical="top"
-                value={description}
-                onChangeText={setDescription}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Color</Text>
-              <TextInput
-                placeholder={colors.deckInputPlaceholder}
-                placeholderTextColor={colors.textSubtle}
-                style={styles.input}
-                value={color}
-                onChangeText={setColor}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.button}
-            activeOpacity={0.85}
-            onPress={() => handleCreateDeck()}
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.buttonText}>Create Deck</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.topBar}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+                activeOpacity={0.85}
+              >
+                <MaterialIcons
+                  name="arrow-back"
+                  size={22}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.header}>
+              <Text style={styles.eyebrow}>Create</Text>
+              <Text style={styles.title}>New deck</Text>
+              <Text style={styles.subtitle}>
+                Add a title, description and color for your new deck.
+              </Text>
+            </View>
+
+            <View style={styles.form}>
+              <View style={styles.field}>
+                <Text style={styles.label}>Title</Text>
+                <TextInput
+                  placeholder="Deutsch"
+                  placeholderTextColor={colors.textSubtle}
+                  style={styles.input}
+                  value={title}
+                  onChangeText={setTitle}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Description</Text>
+                <TextInput
+                  placeholder="Wortarten und Grammatik"
+                  placeholderTextColor={colors.textSubtle}
+                  style={[styles.input, styles.textArea]}
+                  multiline
+                  textAlignVertical="top"
+                  value={description}
+                  onChangeText={setDescription}
+                />
+              </View>
+
+              <View style={styles.field}>
+                <Text style={styles.label}>Color</Text>
+                <TextInput
+                  placeholder={colors.deckInputPlaceholder}
+                  placeholderTextColor={colors.textSubtle}
+                  style={styles.input}
+                  value={color}
+                  onChangeText={setColor}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.85}
+              onPress={() => handleCreateDeck()}
+            >
+              <Text style={styles.buttonText}>Create Deck</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );
@@ -125,6 +141,8 @@ const styles = StyleSheet.create({
   safeArea: globalStyles.safeArea,
   container: {
     flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: spacing["2xl"],
     paddingTop: spacing["2xl"],
     paddingBottom: 28,
@@ -180,7 +198,7 @@ const styles = StyleSheet.create({
     minHeight: 130,
   },
   button: {
-    marginTop: "auto",
+    marginTop: spacing["2xl"],
     backgroundColor: colors.text,
     borderRadius: radius.pill,
     paddingVertical: 16,
