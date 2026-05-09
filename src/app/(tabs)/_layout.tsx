@@ -7,7 +7,7 @@ import { colors, radius, shadows } from "../../styles/global";
 
 const TABS = [
   { name: "index", icon: "home" as const, label: "Home" },
-  { name: "decks", icon: "library-books" as const, label: "Decks" },
+  { name: "decks", icon: "style" as const, label: "Decks" },
   { name: "profile", icon: "account-circle" as const, label: "Profile" },
 ];
 
@@ -56,7 +56,7 @@ export default function TabsLayout() {
         headerShown: false,
         sceneStyle: {
           backgroundColor: colors.background,
-          paddingBottom: hideTabBar ? 0 : 66 + bottomOffset,
+          paddingBottom: hideTabBar ? 0 : 58 + bottomOffset,
         },
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
@@ -88,17 +88,17 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
-    left: 16,
-    right: 16,
-    height: 62,
+    left: 18,
+    right: 18,
+    height: 58,
     paddingTop: 0,
     paddingBottom: 0,
-    paddingHorizontal: 6,
-    backgroundColor: colors.tabBar,
+    paddingHorizontal: 8,
+    backgroundColor: colors.tabBarSurface,
     borderTopWidth: 0,
     borderWidth: 1,
     borderColor: colors.tabBarBorder,
-    borderRadius: radius.xl,
+    borderRadius: 20,
     overflow: "hidden",
     ...shadows.tabBar,
   },
@@ -107,23 +107,25 @@ const styles = StyleSheet.create({
   },
   tabBarItem: {
     flex: 1,
-    height: 62,
+    height: 58,
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 2,
   },
   tabBarIcon: {
     width: "100%",
-    height: 62,
+    height: 58,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: -7,
   },
   tabContent: {
-    minWidth: 64,
-    height: 46,
-    borderRadius: 16,
+    minWidth: 58,
+    height: 42,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    gap: 2,
+    gap: 1,
     borderWidth: 1,
     borderColor: colors.transparent,
     position: "relative",
@@ -131,9 +133,13 @@ const styles = StyleSheet.create({
   tabContentActive: {
     backgroundColor: colors.accentSurface,
     borderColor: colors.accentBorder,
+    shadowColor: colors.accent,
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "700",
     letterSpacing: 0.3,
   },

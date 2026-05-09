@@ -7,13 +7,14 @@ export const colors = {
   surfaceMuted: "#0f141d",
   surfaceElevated: "#171d29",
   tabBar: "#090b10",
+  tabBarSurface: "#070916",
   tabInactive: "#7d8498",
   deckFallback: "#4b5563",
   deckInputPlaceholder: "#3B82F6",
 
   border: "#232a36",
   borderMuted: "#1d2430",
-  tabBarBorder: "#24293a",
+  tabBarBorder: "#1d2335",
 
   text: "#f5f7fb",
   textStrong: "#dfe5f2",
