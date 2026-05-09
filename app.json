@@ -7,6 +7,10 @@
     "icon": "./assets/images/icon.png",
     "scheme": "kuroapp",
     "userInterfaceStyle": "automatic",
+    "androidNavigationBar": {
+      "backgroundColor": "#090b10",
+      "barStyle": "light-content"
+    },
     "ios": {
       "icon": "./assets/expo.icon"
     },
