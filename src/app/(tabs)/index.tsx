@@ -1,7 +1,16 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import laravelDashboardService from "../../../services/laravelDashboardService";
 import { useAuth } from "../../context/AuthContext";
 import {
   colors,
@@ -12,23 +21,48 @@ import {
   spacing,
 } from "../../styles/global";
 
-// TODO: Replace this object with real dashboard data from the backend.
-// Example idea: GET /api/dashboard -> { deckCount, cardCount, latestDeck, dueCards }
-const dashboardDemoData = {
-  deckCount: 4,
-  cardCount: 128,
-  dueCards: 18,
-  studyStreak: 5,
-  latestDeck: {
-    id: 1,
-    title: "Deutsch Grundlagen",
-    description: "Artikel, Verben und wichtige Alltagssätze.",
-    progress: 62,
-  },
+type LatestDeck = {
+  id: number;
+  title: string;
+  description: string | null;
+  progress: number;
+};
+
+type DashboardData = {
+  deck_count: number;
+  card_count: number;
+  due_cards: number;
+  study_streak: number;
+  latest_deck: LatestDeck | null;
 };
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboard = useCallback(async () => {
+    setLoading(true);
+
+    const response = await laravelDashboardService.getDashboard();
+
+    if (response.error) {
+      setError(response.error);
+      setDashboard(null);
+    } else {
+      setDashboard(response.data as DashboardData);
+      setError(null);
+    }
+
+    setLoading(false);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboard();
+    }, [fetchDashboard])
+  );
 
   const handleOpenDecks = () => {
     router.push("/decks");
@@ -39,9 +73,15 @@ export default function DashboardScreen() {
   };
 
   const handleContinueStudy = () => {
-    // TODO: Replace latestDeck.id with the real recommended deck/study route.
-    router.push(`/decks/${dashboardDemoData.latestDeck.id}/study`);
+    if (!dashboard?.latest_deck) {
+      router.push("/decks/new");
+      return;
+    }
+
+    router.push(`/decks/${dashboard.latest_deck.id}/study`);
   };
+
+  const latestDeck = dashboard?.latest_deck;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -56,81 +96,128 @@ export default function DashboardScreen() {
           </Text>
         </View>
 
-        <View style={styles.statsGrid}>
-          <StatCard
-            icon="library-books"
-            label="Decks"
-            value={dashboardDemoData.deckCount}
-          />
-          <StatCard
-            icon="style"
-            label="Cards"
-            value={dashboardDemoData.cardCount}
-          />
-          <StatCard
-            icon="schedule"
-            label="Due today"
-            value={dashboardDemoData.dueCards}
-          />
-          <StatCard
-            icon="local-fire-department"
-            label="Streak"
-            value={`${dashboardDemoData.studyStreak}d`}
-          />
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Continue studying</Text>
-            <Text style={styles.sectionMeta}>
-              {dashboardDemoData.latestDeck.progress}% done
-            </Text>
+        {loading ? (
+          <View style={styles.stateCard}>
+            <ActivityIndicator size="large" />
+            <Text style={styles.stateText}>Loading dashboard...</Text>
           </View>
-
-          <View style={styles.continueCard}>
-            <View style={styles.continueIcon}>
-              <MaterialIcons name="school" size={24} color={colors.accent} />
-            </View>
-
-            <View style={styles.continueContent}>
-              <Text style={styles.deckTitle}>
-                {dashboardDemoData.latestDeck.title}
-              </Text>
-              <Text style={styles.deckDescription}>
-                {dashboardDemoData.latestDeck.description}
-              </Text>
-
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${dashboardDemoData.latestDeck.progress}%` },
-                  ]}
-                />
-              </View>
-            </View>
-
-            <Pressable style={styles.studyButton} onPress={handleContinueStudy}>
-              <MaterialIcons
-                name="play-arrow"
-                size={20}
-                color={colors.textInverse}
-              />
+        ) : error ? (
+          <View style={styles.stateCard}>
+            <Text style={styles.stateTitle}>Could not load dashboard</Text>
+            <Text style={styles.stateText}>{error}</Text>
+            <Pressable style={styles.retryButton} onPress={fetchDashboard}>
+              <Text style={styles.retryButtonText}>Try again</Text>
             </Pressable>
           </View>
-        </View>
+        ) : (
+          <>
+            <View style={styles.statsGrid}>
+              <StatCard
+                icon="library-books"
+                label="Decks"
+                value={dashboard?.deck_count ?? 0}
+              />
+              <StatCard
+                icon="style"
+                label="Cards"
+                value={dashboard?.card_count ?? 0}
+              />
+              <StatCard
+                icon="schedule"
+                label="Due today"
+                value={dashboard?.due_cards ?? 0}
+              />
+              <StatCard
+                icon="local-fire-department"
+                label="Streak"
+                value={`${dashboard?.study_streak ?? 0}d`}
+              />
+            </View>
 
-        <View style={styles.quickActions}>
-          <Pressable style={styles.primaryAction} onPress={handleCreateDeck}>
-            <MaterialIcons name="add" size={20} color={colors.textInverse} />
-            <Text style={styles.primaryActionText}>Create Deck</Text>
-          </Pressable>
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Continue studying</Text>
+                {latestDeck && (
+                  <Text style={styles.sectionMeta}>
+                    {latestDeck.progress}% done
+                  </Text>
+                )}
+              </View>
 
-          <Pressable style={styles.secondaryAction} onPress={handleOpenDecks}>
-            <MaterialIcons name="folder-open" size={20} color={colors.text} />
-            <Text style={styles.secondaryActionText}>Open Decks</Text>
-          </Pressable>
-        </View>
+              {latestDeck ? (
+                <View style={styles.continueCard}>
+                  <View style={styles.continueIcon}>
+                    <MaterialIcons
+                      name="school"
+                      size={24}
+                      color={colors.accent}
+                    />
+                  </View>
+
+                  <View style={styles.continueContent}>
+                    <Text style={styles.deckTitle}>{latestDeck.title}</Text>
+                    <Text style={styles.deckDescription}>
+                      {latestDeck.description || "No description yet."}
+                    </Text>
+
+                    <View style={styles.progressTrack}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          { width: `${latestDeck.progress}%` },
+                        ]}
+                      />
+                    </View>
+                  </View>
+
+                  <Pressable
+                    style={styles.studyButton}
+                    onPress={handleContinueStudy}
+                  >
+                    <MaterialIcons
+                      name="play-arrow"
+                      size={20}
+                      color={colors.textInverse}
+                    />
+                  </Pressable>
+                </View>
+              ) : (
+                <View style={styles.emptyDeckCard}>
+                  <Text style={styles.emptyDeckTitle}>No deck yet</Text>
+                  <Text style={styles.emptyDeckText}>
+                    Create your first deck to start learning.
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <View style={styles.quickActions}>
+              <Pressable
+                style={styles.primaryAction}
+                onPress={handleCreateDeck}
+              >
+                <MaterialIcons
+                  name="add"
+                  size={20}
+                  color={colors.textInverse}
+                />
+                <Text style={styles.primaryActionText}>Create Deck</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.secondaryAction}
+                onPress={handleOpenDecks}
+              >
+                <MaterialIcons
+                  name="folder-open"
+                  size={20}
+                  color={colors.text}
+                />
+                <Text style={styles.secondaryActionText}>Open Decks</Text>
+              </Pressable>
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -178,6 +265,30 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.extraBold,
     marginBottom: spacing.sm,
   },
+  stateCard: {
+    ...globalStyles.card,
+    alignItems: "center",
+    gap: spacing.md,
+    padding: spacing["2xl"],
+  },
+  stateTitle: {
+    color: colors.text,
+    fontSize: fontSize.xl,
+    fontWeight: fontWeight.bold,
+    textAlign: "center",
+  },
+  stateText: {
+    color: colors.textMuted,
+    fontSize: fontSize.md,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+  retryButton: {
+    ...globalStyles.secondaryButton,
+    paddingHorizontal: spacing["2xl"],
+    paddingVertical: spacing.md,
+  },
+  retryButtonText: globalStyles.secondaryButtonText,
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -279,6 +390,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primary,
+  },
+  emptyDeckCard: {
+    ...globalStyles.card,
+    padding: spacing.lg,
+    borderRadius: radius["2xl"],
+  },
+  emptyDeckTitle: {
+    color: colors.text,
+    fontSize: fontSize.lg,
+    fontWeight: fontWeight.bold,
+    marginBottom: spacing.xs,
+  },
+  emptyDeckText: {
+    color: colors.textMuted,
+    fontSize: fontSize.md,
+    lineHeight: 20,
   },
   quickActions: {
     gap: spacing.md,
