@@ -136,11 +136,11 @@ export default function StudyScreen() {
             </Text>
 
             <TouchableOpacity
-              style={styles.secondaryButton}
+              style={styles.emptyBackButton}
               onPress={handleBack}
               activeOpacity={0.8}
             >
-              <Text style={styles.secondaryButtonText}>Back</Text>
+              <Text style={styles.emptyBackButtonText}>Back</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     fontWeight: fontWeight.bold,
     color: colors.text,
     marginBottom: 10,
+    textAlign: "center",
   },
   stateText: {
     color: colors.textMuted,
@@ -262,6 +263,17 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     textAlign: "center",
     marginBottom: spacing.xl,
+    maxWidth: 290,
+  },
+  emptyBackButton: {
+    ...globalStyles.secondaryButton,
+    minWidth: 120,
+    paddingHorizontal: spacing["2xl"],
+    paddingVertical: spacing.md,
+  },
+  emptyBackButtonText: {
+    ...globalStyles.secondaryButtonText,
+    fontSize: 16,
   },
   topBar: {
     flexDirection: "row",
