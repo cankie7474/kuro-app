@@ -5,6 +5,10 @@ const laravelCardService = {
     return await apiRequest(`/api/decks/${deckId}/cards`);
   },
 
+  async getStudyCards(deckId) {
+    return await apiRequest(`/api/decks/${deckId}/study`);
+  },
+
   async createCard(cardData, deckId) {
     return await apiRequest(`/api/decks/${deckId}/cards`, {
       method: "POST",
@@ -21,6 +25,13 @@ const laravelCardService = {
   async deleteCard(cardId, deckId) {
     return await apiRequest(`/api/decks/${deckId}/cards/${cardId}`, {
       method: "DELETE",
+    });
+  },
+
+  async reviewCard(cardId, rating) {
+    return await apiRequest(`/api/cards/${cardId}/review`, {
+      method: "POST",
+      body: JSON.stringify({ rating }),
     });
   },
 };

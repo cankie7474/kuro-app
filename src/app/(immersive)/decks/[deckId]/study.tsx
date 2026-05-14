@@ -33,6 +33,19 @@ type Card = {
   deck_id: number;
 };
 
+type Rating = "again" | "hard" | "good" | "easy";
+
+const RATING_OPTIONS: Array<{
+  value: Rating;
+  label: string;
+  helper: string;
+}> = [
+  { value: "again", label: "Again", helper: "10 min" },
+  { value: "hard", label: "Hard", helper: "1 day" },
+  { value: "good", label: "Good", helper: "3 days" },
+  { value: "easy", label: "Easy", helper: "7 days" },
+];
+
 export default function StudyScreen() {
   const params = useLocalSearchParams();
   const deckId = params.deckId;
@@ -41,6 +54,7 @@ export default function StudyScreen() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [submittingRating, setSubmittingRating] = useState(false);
   const translateX = useSharedValue(0);
   const animatedCardStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -55,7 +69,7 @@ export default function StudyScreen() {
 
     setLoading(true);
 
-    const response = await laravelCardService.getCardsByDeck(String(deckId));
+    const response = await laravelCardService.getStudyCards(String(deckId));
 
     if (response.error) {
       console.error("Failed to load study cards:", response.error);
@@ -63,6 +77,8 @@ export default function StudyScreen() {
       setCards([]);
     } else {
       setCards(response.data as Card[]);
+      setCurrentIndex(0);
+      setShowAnswer(false);
     }
 
     setLoading(false);
@@ -107,6 +123,29 @@ export default function StudyScreen() {
     }
   };
 
+  const handleReviewCard = async (rating: Rating) => {
+    const currentCard = cards[currentIndex];
+
+    if (!currentCard || submittingRating) return;
+
+    setSubmittingRating(true);
+
+    const response = await laravelCardService.reviewCard(
+      currentCard.id,
+      rating
+    );
+
+    setSubmittingRating(false);
+
+    if (response.error) {
+      console.error("Failed to review card:", response.error);
+      Alert.alert("Failed to save review", response.error);
+      return;
+    }
+
+    handleNextCard();
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
@@ -130,9 +169,10 @@ export default function StudyScreen() {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <View style={styles.centerState}>
-            <Text style={styles.stateTitle}>No cards available</Text>
+            <Text style={styles.stateTitle}>No cards due</Text>
             <Text style={styles.stateText}>
-              Add cards to this deck before starting a study session.
+              Add cards or come back later when this deck has cards ready to
+              review.
             </Text>
 
             <TouchableOpacity
@@ -149,7 +189,6 @@ export default function StudyScreen() {
   }
 
   const currentCard = cards[currentIndex];
-  const isLastCard = currentIndex === cards.length - 1;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -187,26 +226,26 @@ export default function StudyScreen() {
           </Animated.View>
 
           <View style={styles.actions}>
-            <View style={styles.actionsRow}>
-              <TouchableOpacity
-                style={[
-                  styles.secondaryButton,
-                  currentIndex === 0 && globalStyles.buttonDisabledStrong,
-                ]}
-                onPress={handlePreviousCard}
-                activeOpacity={0.8}
-              >
-                <Text
+            {!showAnswer ? (
+              <View style={styles.actionsRow}>
+                <TouchableOpacity
                   style={[
-                    styles.secondaryButtonText,
-                    currentIndex === 0 && globalStyles.textDisabled,
+                    styles.secondaryButton,
+                    currentIndex === 0 && globalStyles.buttonDisabledStrong,
                   ]}
+                  onPress={handlePreviousCard}
+                  activeOpacity={0.8}
                 >
-                  Previous
-                </Text>
-              </TouchableOpacity>
+                  <Text
+                    style={[
+                      styles.secondaryButtonText,
+                      currentIndex === 0 && globalStyles.textDisabled,
+                    ]}
+                  >
+                    Previous
+                  </Text>
+                </TouchableOpacity>
 
-              {!showAnswer ? (
                 <TouchableOpacity
                   style={styles.primaryButton}
                   onPress={handleShowAnswer}
@@ -214,18 +253,26 @@ export default function StudyScreen() {
                 >
                   <Text style={styles.primaryButtonText}>Show Answer</Text>
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.primaryButton}
-                  onPress={handleNextCard}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {isLastCard ? "Finish" : "Next Card"}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
+              </View>
+            ) : (
+              <View style={styles.ratingGrid}>
+                {RATING_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.ratingButton,
+                      submittingRating && globalStyles.buttonDisabled,
+                    ]}
+                    onPress={() => handleReviewCard(option.value)}
+                    activeOpacity={0.8}
+                    disabled={submittingRating}
+                  >
+                    <Text style={styles.ratingLabel}>{option.label}</Text>
+                    <Text style={styles.ratingHelper}>{option.helper}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -323,6 +370,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     marginTop: 18,
+    gap: 12,
   },
   actionsRow: {
     flexDirection: "row",
@@ -352,6 +400,32 @@ const styles = StyleSheet.create({
   secondaryButtonText: {
     color: colors.textButtonSecondary,
     fontSize: 16,
+    fontWeight: fontWeight.semibold,
+  },
+  ratingGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  ratingButton: {
+    flexGrow: 1,
+    flexBasis: "47%",
+    backgroundColor: colors.surfacePrevious,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  ratingLabel: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: fontWeight.bold,
+    marginBottom: 2,
+  },
+  ratingHelper: {
+    color: colors.textSubtle,
+    fontSize: 12,
     fontWeight: fontWeight.semibold,
   },
 });
